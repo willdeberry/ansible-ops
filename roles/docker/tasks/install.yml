@@ -34,7 +34,7 @@
   loop: "{{ docker_managed_dirs }}"
   loop_control:
     label: "{{ item.path }}"
-  when: not item.link
+  when: item.link | length == 0
 
 - name: Ensure symlink targets exist
   ansible.builtin.file:
@@ -46,7 +46,7 @@
   loop: "{{ docker_managed_dirs }}"
   loop_control:
     label: "{{ item.link }}"
-  when: item.link
+  when: item.link | length > 0
 
 - name: Ensure symlinks are in place
   ansible.builtin.file:
@@ -58,7 +58,7 @@
   loop: "{{ docker_managed_dirs }}"
   loop_control:
     label: "{{ item.path }}"
-  when: item.link
+  when: item.link | length > 0
 
 - name: Add extra users to docker group
   ansible.builtin.user:
