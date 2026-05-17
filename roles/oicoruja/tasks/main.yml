@@ -12,10 +12,18 @@
     filename: nodesource
   tags: [oicoruja]
 
+- name: Check nodejs version
+  ansible.builtin.command: node --version
+  register: node_version
+  changed_when: false
+  failed_when: false
+  tags: [oicoruja]
+
 - name: Remove old nodejs
   ansible.builtin.apt:
     name: nodejs
     state: absent
+  when: node_version.rc != 0 or not node_version.stdout.startswith('v22')
   tags: [oicoruja]
 
 - name: Install nodejs 22 from NodeSource
@@ -23,6 +31,7 @@
     name: nodejs
     state: present
     update_cache: true
+  when: node_version.rc != 0 or not node_version.stdout.startswith('v22')
   tags: [oicoruja]
 
 - name: Ensure www directory exists
@@ -44,12 +53,18 @@
   register: oicoruja_repo
   tags: [oicoruja]
 
+- name: Check if node_modules exists
+  ansible.builtin.stat:
+    path: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br/node_modules
+  register: node_modules_stat
+  tags: [oicoruja]
+
 - name: Install npm dependencies
   ansible.builtin.command:
     cmd: npm ci
     chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
   become_user: will
-  when: oicoruja_repo.changed
+  when: oicoruja_repo.changed or not node_modules_stat.stat.exists
   tags: [oicoruja]
 
 - name: Build oicoruja
@@ -57,7 +72,7 @@
     cmd: npm run build
     chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
   become_user: will
-  when: oicoruja_repo.changed
+  when: oicoruja_repo.changed or not node_modules_stat.stat.exists
   tags: [oicoruja]
 
 - name: Ensure nginx site-confs directory exists
