@@ -1,0 +1,6 @@
+---
+- name: Restart nginx container
+  ansible.builtin.command:
+    cmd: docker compose restart nginx
+    chdir: /home/will/docker/oicoruja
+  become_user: will

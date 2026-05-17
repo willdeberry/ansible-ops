@@ -73,6 +73,7 @@
     chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
   become_user: will
   when: oicoruja_repo.changed or not node_modules_stat.stat.exists
+  notify: Restart nginx container
   tags: [oicoruja]
 
 - name: Ensure nginx site-confs directory exists
