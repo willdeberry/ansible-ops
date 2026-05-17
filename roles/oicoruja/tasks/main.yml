@@ -12,7 +12,13 @@
     filename: nodesource
   tags: [oicoruja]
 
-- name: Install nodejs
+- name: Remove old nodejs
+  ansible.builtin.apt:
+    name: nodejs
+    state: absent
+  tags: [oicoruja]
+
+- name: Install nodejs 22 from NodeSource
   ansible.builtin.apt:
     name: nodejs
     state: present
