@@ -1,0 +1,18 @@
+---
+timezone: America/New_York
+
+extra_packages: []
+
+packages:
+  - ack
+  - bash-completion
+  - git
+  - htop
+  - lm-sensors
+  - neovim
+  - nfs-common
+  - openssh-server
+  - tree
+  - ufw
+  - yadm
+  - yamllint

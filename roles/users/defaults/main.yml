@@ -1,0 +1,9 @@
+---
+managed_groups: []
+managed_users: []
+managed_users_extra: []
+
+vault_ssh_public_keys: {}
+vault_ssh_public_keys_extra: {}
+
+sudoers_d_path: /etc/sudoers.d

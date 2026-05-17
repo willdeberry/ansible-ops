@@ -1,0 +1,12 @@
+---
+docker_users: []
+
+docker_daemon_options:
+  log-driver: json-file
+  log-opts:
+    max-size: "100m"
+    max-file: "3"
+  storage-driver: overlay2
+
+docker_service_enabled: true
+docker_service_state: started

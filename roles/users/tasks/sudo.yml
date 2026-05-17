@@ -1,0 +1,28 @@
+---
+- name: Ensure sudoers.d directory exists
+  ansible.builtin.file:
+    path:  "{{ sudoers_d_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode:  "0750"
+
+- name: Grant passwordless sudo via drop-in
+  ansible.builtin.copy:
+    dest:    "{{ sudoers_d_path }}/{{ item.username }}"
+    content: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL\n"
+    owner:   root
+    group:   root
+    mode:    "0440"
+    validate: visudo -cf %s
+  loop: "{{ all_managed_users | selectattr('sudo', 'equalto', true) | list }}"
+  loop_control:
+    label: "{{ item.username }}"
+
+- name: Remove sudo drop-in for non-sudo users
+  ansible.builtin.file:
+    path:  "{{ sudoers_d_path }}/{{ item.username }}"
+    state: absent
+  loop: "{{ all_managed_users | selectattr('sudo', 'equalto', false) | list }}"
+  loop_control:
+    label: "{{ item.username }}"

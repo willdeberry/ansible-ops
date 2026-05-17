@@ -1,0 +1,37 @@
+---
+# ── Docker ───────────────────────────────────────────────────────────────────
+docker_daemon_options:
+  log-driver: json-file
+  log-opts:
+    max-size: "100m"
+    max-file: "3"
+  storage-driver: overlay2
+
+# ── nginx ────────────────────────────────────────────────────────────────────
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+nginx_client_max_body_size: "64m"
+nginx_keepalive_timeout: 65
+nginx_server_tokens: "off"
+
+# ── Users ────────────────────────────────────────────────────────────────────
+# Groups that must exist before user creation runs.
+# docker is created by the docker role; sudo/plugdev exist on Ubuntu by default.
+# ssh-user is custom and must be created explicitly.
+managed_groups:
+  - ssh-user
+
+managed_users:
+  - username: will
+    comment: "Will"
+    shell: /bin/bash
+    groups:
+      - docker
+      - sudo
+      - plugdev
+      - ssh-user
+    sudo: true
+    home: /home/will
+    home_mode: "0700"
+    create_home: true
+

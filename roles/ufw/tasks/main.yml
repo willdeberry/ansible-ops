@@ -1,0 +1,7 @@
+---
+- name: Disable and stop ufw
+  ansible.builtin.service:
+    name: ufw
+    enabled: false
+    state: stopped
+  tags: [ufw]

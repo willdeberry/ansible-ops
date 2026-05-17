@@ -1,0 +1,13 @@
+---
+# Docker Compose ships as a CLI plugin via docker-compose-plugin.
+# This task validates the plugin is functional after installation.
+
+- name: Verify docker compose plugin is available
+  ansible.builtin.command: docker compose version
+  register: compose_version_out
+  changed_when: false
+  failed_when: compose_version_out.rc != 0
+
+- name: Show docker compose version
+  ansible.builtin.debug:
+    msg: "{{ compose_version_out.stdout }}"

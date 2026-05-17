@@ -1,0 +1,8 @@
+---
+- name: Install Docker
+  ansible.builtin.include_tasks: install.yml
+  tags: [docker, docker-install]
+
+- name: Verify Docker Compose plugin
+  ansible.builtin.include_tasks: compose.yml
+  tags: [docker, docker-compose]

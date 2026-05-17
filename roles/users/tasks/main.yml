@@ -1,0 +1,54 @@
+---
+- name: Ensure custom groups exist
+  ansible.builtin.group:
+    name:  "{{ item }}"
+    state: present
+  loop: "{{ managed_groups }}"
+  tags: [users, users-groups]
+
+- name: Set combined user list
+  ansible.builtin.set_fact:
+    all_managed_users: "{{ managed_users + managed_users_extra }}"
+  tags: [users]
+
+- name: Merge SSH public key dicts
+  ansible.builtin.set_fact:
+    all_ssh_keys: "{{ vault_ssh_public_keys | combine(vault_ssh_public_keys_extra) }}"
+  tags: [users]
+
+- name: Create and configure users
+  ansible.builtin.include_tasks: create.yml
+  tags: [users, users-create]
+
+- name: Configure sudoers
+  ansible.builtin.include_tasks: sudo.yml
+  tags: [users, users-sudo]
+
+- name: Check if yadm repo is already cloned
+  ansible.builtin.stat:
+    path: /home/will/.local/share/yadm/repo.git
+  register: yadm_repo
+  tags: [users, users-dotfiles]
+
+- name: Clone dotfiles via yadm
+  ansible.builtin.command: yadm clone --no-bootstrap https://github.com/willdeberry/dotFiles
+  become_user: will
+  when: not yadm_repo.stat.exists
+  tags: [users, users-dotfiles]
+
+- name: Force checkout dotfiles
+  ansible.builtin.command: yadm checkout -f -- .
+  become_user: will
+  args:
+    chdir: /home/will
+  tags: [users, users-dotfiles]
+
+- name: Drop SSH config fragment
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-managed.conf
+    content: "AllowGroups ssh-user\n"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart sshd
+  tags: [users, users-ssh]

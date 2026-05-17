@@ -1,0 +1,7 @@
+---
+extra_packages:
+  - ansible
+  - neovim
+  - tmux
+  - unrar
+  - zfsutils-linux

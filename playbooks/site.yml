@@ -1,0 +1,30 @@
+---
+- name: Local Servers
+  hosts: local
+  become: true
+
+  roles:
+    - role: base
+      tags: [base]
+    - role: ufw
+      tags: [ufw]
+    - role: users
+      tags: [users]
+    - role: docker
+      tags: [docker]
+    - role: tailscale
+      tags: [tailscale]
+
+- name: Remote Servers
+  hosts: remote
+  become: true
+
+  roles:
+    - role: base
+      tags: [base]
+    - role: ufw
+      tags: [ufw]
+    - role: users
+      tags: [users]
+    - role: docker
+      tags: [docker]

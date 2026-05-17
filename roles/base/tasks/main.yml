@@ -1,0 +1,30 @@
+---
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+  tags: [base]
+
+- name: Get current timezone
+  ansible.builtin.command: timedatectl show --property=Timezone --value
+  register: current_tz
+  changed_when: false
+  tags: [base]
+
+- name: Set timezone
+  ansible.builtin.command: timedatectl set-timezone {{ timezone }}
+  when: current_tz.stdout != timezone
+  tags: [base]
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: true
+  tags: [base]
+
+- name: Install host-specific packages
+  ansible.builtin.apt:
+    name: "{{ extra_packages }}"
+    state: present
+  when: extra_packages | length > 0
+  tags: [base]
