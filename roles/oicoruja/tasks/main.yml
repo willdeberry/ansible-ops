@@ -1,0 +1,44 @@
+---
+- name: Install nodejs and npm
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    update_cache: true
+  tags: [oicoruja]
+
+- name: Ensure www directory exists
+  ansible.builtin.file:
+    path: /home/will/docker/oicoruja/nginx/www
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  tags: [oicoruja]
+
+- name: Clone or update oicoruja repo
+  ansible.builtin.git:
+    repo: git@github.com:willdeberry/oicoruja.com.br.git
+    dest: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
+    update: true
+    accept_hostkey: true
+  become_user: will
+  register: oicoruja_repo
+  tags: [oicoruja]
+
+- name: Install npm dependencies
+  ansible.builtin.command:
+    cmd: npm ci
+    chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
+  become_user: will
+  when: oicoruja_repo.changed
+  tags: [oicoruja]
+
+- name: Build oicoruja
+  ansible.builtin.command:
+    cmd: npm run build
+    chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
+  become_user: will
+  when: oicoruja_repo.changed
+  tags: [oicoruja]
