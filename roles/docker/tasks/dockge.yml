@@ -1,0 +1,18 @@
+---
+- name: Download dockge compose.yaml
+  ansible.builtin.get_url:
+    url: "https://dockge.kuma.pet/compose.yaml?port={{ dockge_port }}&stacksPath={{ dockge_stacks_path }}"
+    dest: "{{ dockge_dir }}/compose.yaml"
+    owner: will
+    group: will
+    mode: "0644"
+    force: false
+  tags: [docker, dockge]
+
+- name: Start dockge
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ dockge_dir }}"
+  register: dockge_up
+  changed_when: "'Started' in dockge_up.stderr or 'Created' in dockge_up.stderr"
+  tags: [docker, dockge]

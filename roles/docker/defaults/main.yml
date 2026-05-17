@@ -1,6 +1,15 @@
 ---
 docker_users: []
 
+dockge_port: 5001
+dockge_dir: /home/will/dockge
+dockge_stacks_path: /home/will/docker
+docker_managed_dirs:
+  - path: /home/will/docker
+    link: ""
+  - path: /home/will/dockge
+    link: ""
+
 docker_daemon_options:
   log-driver: json-file
   log-opts:

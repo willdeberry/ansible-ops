@@ -6,3 +6,7 @@
 - name: Verify Docker Compose plugin
   ansible.builtin.include_tasks: compose.yml
   tags: [docker, docker-compose]
+
+- name: Set up dockge
+  ansible.builtin.include_tasks: dockge.yml
+  tags: [docker, dockge]

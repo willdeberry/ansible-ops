@@ -24,6 +24,42 @@
     enabled: "{{ docker_service_enabled }}"
     state: "{{ docker_service_state }}"
 
+- name: Ensure managed directories exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  loop: "{{ docker_managed_dirs }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: not item.link
+
+- name: Ensure symlink targets exist
+  ansible.builtin.file:
+    path: "{{ item.link }}"
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  loop: "{{ docker_managed_dirs }}"
+  loop_control:
+    label: "{{ item.link }}"
+  when: item.link
+
+- name: Ensure symlinks are in place
+  ansible.builtin.file:
+    src:  "{{ item.link }}"
+    dest: "{{ item.path }}"
+    state: link
+    owner: will
+    group: will
+  loop: "{{ docker_managed_dirs }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: item.link
+
 - name: Add extra users to docker group
   ansible.builtin.user:
     name: "{{ item }}"

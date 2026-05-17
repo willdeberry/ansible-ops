@@ -1,4 +1,13 @@
 ---
+dockge_stacks_path: /storage/tank/docker
+dockge_dir: /storage/tank/dockge
+
+docker_managed_dirs:
+  - path: /home/will/docker
+    link: /storage/tank/docker
+  - path: /home/will/dockge
+    link: /storage/tank/dockge
+
 extra_packages:
   - ansible
   - neovim
