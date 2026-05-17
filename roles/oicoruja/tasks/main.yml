@@ -42,3 +42,21 @@
   become_user: will
   when: oicoruja_repo.changed
   tags: [oicoruja]
+
+- name: Ensure nginx site-confs directory exists
+  ansible.builtin.file:
+    path: /home/will/docker/oicoruja/nginx/config/site-confs
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  tags: [oicoruja]
+
+- name: Symlink nginx.conf from repo to site-confs
+  ansible.builtin.file:
+    src: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br/nginx.conf
+    dest: /home/will/docker/oicoruja/nginx/config/site-confs/oicoruja.conf
+    state: link
+    owner: will
+    group: will
+  tags: [oicoruja]
