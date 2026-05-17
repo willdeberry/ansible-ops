@@ -87,7 +87,7 @@
 
 - name: Symlink nginx.conf from repo to site-confs
   ansible.builtin.file:
-    src: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br/nginx.conf
+    src: /config/www/oicoruja.com.br/nginx.conf
     dest: /home/will/docker/oicoruja/nginx/config/site-confs/oicoruja.conf
     state: link
     owner: will
