@@ -36,6 +36,14 @@
   when: not yadm_repo.stat.exists
   tags: [users, users-dotfiles]
 
+- name: Pull latest dotfiles
+  ansible.builtin.command: yadm pull
+  become_user: will
+  args:
+    chdir: /home/will
+  when: yadm_repo.stat.exists
+  tags: [users, users-dotfiles]
+
 - name: Force checkout dotfiles
   ansible.builtin.command: yadm checkout -f -- .
   become_user: will
