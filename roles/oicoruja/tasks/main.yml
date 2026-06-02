@@ -59,6 +59,16 @@
   register: node_modules_stat
   tags: [oicoruja]
 
+- name: Deploy .env.production
+  ansible.builtin.copy:
+    content: "{{ vault_oicoruja_env_production }}"
+    dest: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br/.env.production
+    owner: will
+    group: will
+    mode: "0600"
+  register: oicoruja_env
+  tags: [oicoruja]
+
 - name: Install npm dependencies
   ansible.builtin.command:
     cmd: npm ci
@@ -72,7 +82,7 @@
     cmd: npm run build
     chdir: /home/will/docker/oicoruja/nginx/www/oicoruja.com.br
   become_user: will
-  when: oicoruja_repo.changed or not node_modules_stat.stat.exists
+  when: oicoruja_repo.changed or not node_modules_stat.stat.exists or oicoruja_env.changed
   notify: Restart nginx container
   tags: [oicoruja]
 
