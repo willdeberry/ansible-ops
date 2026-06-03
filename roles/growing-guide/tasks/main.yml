@@ -17,6 +17,15 @@
     mode: "0644"
   tags: [growing-guide]
 
+- name: Deploy growing-guide grass.html
+  ansible.builtin.copy:
+    src: grass.html
+    dest: /home/will/docker/homelab/nginx/www/growing-guide/grass.html
+    owner: will
+    group: will
+    mode: "0644"
+  tags: [growing-guide]
+
 - name: Ensure nginx site-confs directory exists
   ansible.builtin.file:
     path: /home/will/docker/homelab/nginx/config/site-confs

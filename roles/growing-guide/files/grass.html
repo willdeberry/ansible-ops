@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raleigh, NC — Grass Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0f1a0c;
+  --bg2:      #141f10;
+  --bg3:      #1a2814;
+  --bg4:      #0c1509;
+  --border:   #2a3d22;
+  --border2:  #344d28;
+  --text:     #d4e8c0;
+  --text2:    #8aaa6a;
+  --text3:    #4a6a32;
+  --accent:   #7ec84a;
+  --seed:     #e8c030;
+  --grow:     #4aaa3a;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono:  'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+
+/* ── Header ── */
+.header { text-align: center; margin-bottom: 24px; }
+.header h1 { font-family: var(--font-serif); font-size: 1.9rem; font-weight: 400; line-height: 1.1; }
+.header h1 em { color: var(--accent); font-style: italic; }
+.header p { margin-top: 6px; color: var(--text3); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ── Controls ── */
+.controls {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 14px; max-width: 1100px; margin-left: auto; margin-right: auto;
+}
+.pill {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px;
+  font-family: var(--font-mono); cursor: pointer;
+  border: 1px solid var(--border2); background: var(--bg3); color: var(--text2);
+  transition: all .15s;
+}
+.pill:hover { border-color: #7ec84a88; color: var(--accent); }
+.pill.active { background: var(--accent); color: #0a1208; border-color: var(--accent); font-weight: 500; }
+.pill.warm   { border-color: #e8a03044; }
+.pill.warm.active   { background: #e8a030; border-color: #e8a030; color: #1a0e00; }
+.pill.cool   { border-color: #3a9ad844; }
+.pill.cool.active   { background: #3a9ad8; border-color: #3a9ad8; color: #001018; }
+.pill.orn    { border-color: #b86ad844; }
+.pill.orn.active    { background: #b86ad8; border-color: #b86ad8; color: #0f0018; }
+.pill.native { border-color: #7ec84a44; }
+.pill.native.active { background: #7ec84a; border-color: #7ec84a; color: #0a1208; }
+
+.search {
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px;
+  color: var(--text); font-family: var(--font-mono); font-size: 12px;
+  padding: 4px 10px; outline: none; width: 150px; transition: border-color .15s;
+}
+.search:focus { border-color: #7ec84a88; }
+.search::placeholder { color: var(--text3); }
+
+.count { font-size: 11px; color: var(--text3); }
+
+.legend { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-left: auto; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text3); }
+.leg-dot { width: 14px; height: 10px; border-radius: 2px; }
+.seed-dot { background: var(--seed); }
+.grow-dot { background: var(--grow); }
+.dorm-dot { background: var(--bg3); border: 1px solid var(--border2); }
+
+/* ── Chart ── */
+.chart-outer {
+  max-width: 1100px; margin: 0 auto; overflow-x: auto;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg2);
+}
+.chart-inner { min-width: 700px; }
+
+/* Season band */
+.season-band { display: grid; grid-template-columns: 180px repeat(12, 1fr); border-bottom: 1px solid var(--border); }
+.s-blank  { background: var(--bg4); border-right: 1px solid var(--border2); }
+.s-winter { grid-column: span 2; background: #1a2433; color: #5a8ab8; font-size: 10px; text-align: center; padding: 5px 0; border-right: 1px solid var(--border); }
+.s-spring { grid-column: span 3; background: #1a2a1a; color: #5a9a4a; font-size: 10px; text-align: center; padding: 5px 0; border-right: 1px solid var(--border); }
+.s-summer { grid-column: span 3; background: #2a2010; color: #b8801a; font-size: 10px; text-align: center; padding: 5px 0; border-right: 1px solid var(--border); }
+.s-fall   { grid-column: span 3; background: #221a10; color: #a06820; font-size: 10px; text-align: center; padding: 5px 0; border-right: 1px solid var(--border); }
+.s-winter2{ grid-column: span 1; background: #1a2433; color: #5a8ab8; font-size: 10px; text-align: center; padding: 5px 0; }
+
+/* Month header */
+.month-header { display: grid; grid-template-columns: 180px repeat(12, 1fr); border-bottom: 1px solid var(--border2); background: var(--bg3); }
+.name-col-head { padding: 7px 12px; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; border-right: 1px solid var(--border2); }
+.mo-head { padding: 6px 2px; font-size: 10px; color: var(--text3); text-align: center; border-right: 1px solid var(--border); }
+.mo-head:last-child { border-right: none; }
+.q-winter { background: #1a243322; }
+.q-spring { background: #1a2a1a22; }
+.q-summer { background: #2a201022; }
+.q-fall   { background: #22181022; }
+
+/* Rows */
+.plant-row { display: grid; grid-template-columns: 180px repeat(12, 1fr); border-bottom: 1px solid var(--border); transition: background .1s; }
+.plant-row:last-child { border-bottom: none; }
+.plant-row:hover { background: #1d2c1580; }
+.plant-row.hidden { display: none; }
+
+/* Name cell */
+.name-cell {
+  padding: 6px 12px; border-right: 1px solid var(--border2);
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--bg);
+}
+.name-cell.has-companion { cursor: help; }
+.plant-row:hover .name-cell { background: var(--bg2); }
+.pname { font-size: 12px; font-weight: 500; color: var(--text); }
+.pcat  { font-size: 9px; margin-top: 2px; font-family: var(--font-mono); }
+.pcat.warm   { color: #e8a030; }
+.pcat.cool   { color: #3a9ad8; }
+.pcat.orn    { color: #b86ad8; }
+.pcat.native { color: var(--accent); }
+
+/* Bar cells */
+.bar-cell {
+  border-right: 1px solid var(--border); padding: 6px 2px;
+  display: flex; align-items: center; min-height: 36px; position: relative;
+}
+.bar-cell:last-child { border-right: none; }
+.bar-cell.q-winter { background: #1a243310; }
+.bar-cell.q-spring { background: #1a2a1a10; }
+.bar-cell.q-summer { background: #2a201010; }
+.bar-cell.q-fall   { background: #22181010; }
+
+.bar {
+  height: 16px; border-radius: 3px; width: 100%;
+  cursor: pointer; transition: opacity .15s, transform .1s;
+}
+.bar:hover { opacity: .75; transform: scaleY(1.15); }
+.bar.seed   { background: var(--seed); }
+.bar.grow   { background: var(--grow); }
+.bar.both   { background: linear-gradient(90deg, var(--seed) 50%, var(--grow) 50%); }
+
+.empty-msg { display: none; text-align: center; padding: 32px; color: var(--text3); font-size: 13px; }
+
+/* ── Tooltip ── */
+.tooltip {
+  display: none; position: fixed;
+  background: #1a2a14; border: 1px solid var(--border2);
+  border-radius: 6px; padding: 10px 13px; font-size: 12px;
+  color: var(--text); max-width: 270px; z-index: 999;
+  pointer-events: none; box-shadow: 0 4px 20px #00000080; line-height: 1.5;
+}
+.tooltip strong { color: var(--accent); display: block; margin-bottom: 4px; }
+.tip-month { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.tip-body  { color: var(--text2); font-size: 11px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌾 Raleigh, NC — <em>Grass Calendar</em></h1>
+  <p>USDA Zone 8a · Last frost ~Mar 20 · First frost ~Nov 15</p>
+</div>
+
+<div class="controls">
+  <button class="pill active" data-c="all">All</button>
+  <button class="pill warm"   data-c="warm">☀️ Warm-Season</button>
+  <button class="pill cool"   data-c="cool">❄️ Cool-Season</button>
+  <button class="pill orn"    data-c="orn">🌸 Ornamental</button>
+  <button class="pill native" data-c="native">🌿 Native</button>
+  <input class="search" id="search" type="text" placeholder="Search...">
+  <span class="count" id="count"></span>
+  <div class="legend">
+    <span class="leg"><span class="leg-dot seed-dot"></span>Seed / Sow</span>
+    <span class="leg"><span class="leg-dot grow-dot"></span>Active / Growing</span>
+    <span class="leg"><span class="leg-dot dorm-dot"></span>Dormant</span>
+  </div>
+</div>
+
+<div class="chart-outer">
+<div class="chart-inner">
+
+<div class="season-band">
+  <div class="s-blank"></div>
+  <div class="s-winter">❄️ Winter</div>
+  <div class="s-spring">🌸 Spring</div>
+  <div class="s-summer">☀️ Summer</div>
+  <div class="s-fall">🍂 Fall</div>
+  <div class="s-winter2">❄️</div>
+</div>
+
+<div class="month-header">
+  <div class="name-col-head">Grass</div>
+  <div class="mo-head q-winter">Jan</div>
+  <div class="mo-head q-winter">Feb</div>
+  <div class="mo-head q-spring">Mar</div>
+  <div class="mo-head q-spring">Apr</div>
+  <div class="mo-head q-spring">May</div>
+  <div class="mo-head q-summer">Jun</div>
+  <div class="mo-head q-summer">Jul</div>
+  <div class="mo-head q-summer">Aug</div>
+  <div class="mo-head q-fall">Sep</div>
+  <div class="mo-head q-fall">Oct</div>
+  <div class="mo-head q-fall">Nov</div>
+  <div class="mo-head q-winter">Dec</div>
+</div>
+
+<div id="chart-body"></div>
+<div class="empty-msg" id="empty">No grasses match your filter.</div>
+</div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// 0=Jan … 11=Dec
+// seed: seeding/sowing window (yellow)
+// grow: actively growing (green)
+// both auto-derived where seed & grow overlap
+const G = [
+  // ── WARM-SEASON ──
+  { n:"Bermudagrass",       c:"warm",
+    seed:[3,4],    grow:[4,5,6,7,8,9],
+    tip:"Seed Apr–May when soil hits 65°F. Peak growth Jun–Sep. Goes dormant (tan) after first frost. Overseed with ryegrass in fall for winter color." },
+  { n:"Zoysiagrass",        c:"warm",
+    seed:[4,5],    grow:[4,5,6,7,8,9,10],
+    tip:"Slow to establish from seed — plugs/sod preferred. Greens up May–Oct. Slowest spring green-up of all warm-season grasses. Excellent drought & wear tolerance once established." },
+  { n:"St. Augustinegrass", c:"warm",
+    seed:[],       grow:[4,5,6,7,8,9,10],
+    tip:"Not seeded — established from sod or plugs only (Apr–Sep). Best warm-season option for shade. Watch for chinch bugs in summer." },
+  { n:"Centipedegrass",     c:"warm",
+    seed:[4,5],    grow:[4,5,6,7,8,9,10],
+    tip:"Seed May–Jun when soil is warm. Very low-input — avoid over-fertilizing. Prefers acidic soil pH 5.0–6.0. Slower to establish; patience required." },
+  { n:"Carpetgrass",        c:"warm",
+    seed:[4,5],    grow:[4,5,6,7,8,9],
+    tip:"Best on moist, low-fertility soils. Low traffic tolerance. Seed Apr–May. Common on poorly drained slopes and utility areas." },
+
+  // ── COOL-SEASON ──
+  { n:"Tall Fescue",        c:"cool",
+    seed:[2,8,9],  grow:[0,1,2,3,4,9,10,11],
+    tip:"Primary cool-season lawn grass for Raleigh. Seed Sep–Oct (best) or Mar. Stays green in winter, struggles in peak summer. Deep infrequent watering helps it survive Jul–Aug." },
+  { n:"Fine Fescue",        c:"cool",
+    seed:[2,8,9],  grow:[0,1,2,3,4,9,10,11],
+    tip:"Shade-tolerant — better than tall fescue under trees. Seed Sep–Oct. Lower fertility needs. Creeping red fescue spreads; hard fescue clumps. Not as heat-hardy." },
+  { n:"Annual Ryegrass",    c:"cool",
+    seed:[9,10],   grow:[10,11,0,1,2,3,4],
+    tip:"Overseed dormant Bermuda/Zoysia in Oct for winter green. Fast germination (5–7 days). Dies out as temps climb in Apr–May, letting warm-season grass take back over." },
+  { n:"Perennial Ryegrass", c:"cool",
+    seed:[9,10],   grow:[10,11,0,1,2,3,4],
+    tip:"Finer texture than annual rye; used for overseeding. More traffic-tolerant. Transition back to warm-season grass can be slow — don't overseed too heavy." },
+
+  // ── ORNAMENTAL ──
+  { n:"Muhly Grass",           c:"orn",
+    seed:[2,3],    grow:[4,5,6,7,8,9,10,11],
+    tip:"Seed or divide in spring. Pink/purple plumes explode Sep–Nov — the showstopper of fall landscapes. Full sun, drought-tolerant. Cut back hard in late Feb." },
+  { n:"Feather Reed Grass",    c:"orn",
+    seed:[],       grow:[3,4,5,6,7,8,9,10,11],
+    tip:"'Karl Foerster' — divide clumps in spring. Feathery plumes appear Jun, persist through winter. Upright habit. One of the most reliable ornamentals for NC." },
+  { n:"Maiden Grass",          c:"orn",
+    seed:[],       grow:[4,5,6,7,8,9,10,11],
+    tip:"Divide in spring (Mar–Apr). Silky plumes appear Aug–Sep. Cut back to 6in in Feb before new growth. Can self-seed — deadhead if you don't want spread." },
+  { n:"Fountain Grass",        c:"orn",
+    seed:[3,4],    grow:[4,5,6,7,8,9,10],
+    tip:"Seed or divide spring. Feathery plumes all summer. Purple Fountain Grass may die back in Zone 8a cold snaps — treat as annual or mulch heavily in winter." },
+  { n:"Blue Fescue",           c:"orn",
+    seed:[2,3],    grow:[2,3,4,5,9,10,11],
+    tip:"Cool-season ornamental — looks best spring and fall. Divide every 2–3 years to prevent die-out. Full sun, excellent drainage. Goes semi-dormant in summer heat." },
+  { n:"Japanese Forest Grass", c:"orn",
+    seed:[],       grow:[3,4,5,6,7,8,9,10],
+    tip:"Divide clumps in spring. Prefers shade/part-shade — ideal under trees. 'Aureola' golden form is classic. Slow to establish but long-lived. Emerges late spring." },
+  { n:"Blue Oat Grass",        c:"orn",
+    seed:[3,4],    grow:[3,4,5,6,9,10,11],
+    tip:"Steel-blue foliage, semi-evergreen. Looks best spring and fall; semi-dormant in peak summer. Full sun, well-drained soil. Divide every few years." },
+  { n:"Sedge (Carex)",         c:"orn",
+    seed:[2,3],    grow:[0,1,2,3,4,5,9,10,11],
+    tip:"Broadly adaptable — many species for sun or shade, wet or dry. Cool-season — peaks spring and fall. 'Ice Dance', 'Toffee Twist', 'Evergold' are popular cultivars." },
+
+  // ── NATIVE ──
+  { n:"Little Bluestem",   c:"native",
+    seed:[3,4],    grow:[4,5,6,7,8,9,10,11],
+    tip:"Seed in spring or fall (cold-stratify if spring). Blue-green summer foliage turns copper-red in fall and holds color all winter. Seeds feed birds. Drought-tolerant once established." },
+  { n:"Big Bluestem",      c:"native",
+    seed:[3,4],    grow:[4,5,6,7,8,9,10],
+    tip:"Seed spring after last frost. Grows 4–6ft tall. Distinctive 'turkey foot' seed heads in fall. Full sun. Excellent for naturalized areas and pollinator support." },
+  { n:"Switchgrass",       c:"native",
+    seed:[3,4,9],  grow:[4,5,6,7,8,9,10,11],
+    tip:"Seed spring or fall. 'Shenandoah' turns brilliant red in fall; 'Heavy Metal' stays upright and blue. Rain garden staple. Tolerates wet and dry soils equally well." },
+  { n:"Indiangrass",       c:"native",
+    seed:[3,4],    grow:[4,5,6,7,8,9,10,11],
+    tip:"Seed in spring. Golden plumes Aug–Oct. Stunning fall color. Mixes beautifully with little bluestem and native wildflowers in meadow plantings. Full sun." },
+  { n:"River Oats",        c:"native",
+    seed:[3,4],    grow:[3,4,5,6,7,8,9,10,11],
+    tip:"NC native that thrives in shade — rare for a native grass. Dangling oat-like seed heads summer through winter. Self-seeds prolifically; site thoughtfully or deadhead." },
+  { n:"Virginia Wildrye",  c:"native",
+    seed:[2,3,9],  grow:[0,2,3,4,5,9,10,11],
+    tip:"Cool-season native grass. Seed in early spring or fall. Shade-tolerant understory option for woodland edges. Seeds ripen early and feed birds in summer." },
+  { n:"Eastern Gamagrass", c:"native",
+    seed:[3,4],    grow:[4,5,6,7,8,9,10],
+    tip:"Seed in spring after cold stratification. Large bold clumps. Tolerates wet soils and periodic flooding. Excellent for bioretention and stream banks." },
+];
+
+// Off-season pairings — hover the name cell to see
+// good: what to plant alongside / overseed with during its off/dormant period
+// bad:  what to avoid combining (competition, invasion, transition issues)
+const COMPANIONS = {
+  "Bermudagrass":       { good:["Annual Ryegrass (overseed Oct for winter green)","Perennial Ryegrass (finer texture overseed)","Tall Fescue (transition area edges)"], bad:["Zoysiagrass (aggressive spreader — will invade)","Centipedegrass (no overseeding benefit; spring transition conflict)"] },
+  "Zoysiagrass":        { good:["Annual Ryegrass (light overseed Oct–Nov)","Perennial Ryegrass (traffic-tolerant overseed)"], bad:["Bermudagrass (will invade and displace Zoysia)","Centipedegrass (similar dormancy, no off-season benefit)"] },
+  "St. Augustinegrass": { good:["Annual Ryegrass (overseed dormant areas Oct)","Perennial Ryegrass (light overseed)"], bad:["Bermudagrass (overtakes St. Augustine in full sun)","Centipedegrass (compete for root space)"] },
+  "Centipedegrass":     { good:["Annual Ryegrass (very light overseeding only)","Low-growing sedge in shaded borders"], bad:["Bermudagrass (aggressive — will displace centipede)","Zoysiagrass (same issue)","Heavy ryegrass rates (delays spring green-up)"] },
+  "Carpetgrass":        { good:["Annual Ryegrass (light overseed)","Fine Fescue in moist shade areas"], bad:["Bermudagrass, Zoysia (out-compete in good soil)","Tall Fescue (too upright for blending)"] },
+  "Tall Fescue":        { good:["Fine Fescue (shade blend mix)","Perennial Ryegrass (adds traffic tolerance)","Native wildflowers in summer dormant spots"], bad:["Bermudagrass (invades and crowds fescue in heat)","Zoysiagrass (same summer aggression)"] },
+  "Fine Fescue":        { good:["Tall Fescue (shade blend)","Creeping Red + Hard Fescue mix","Virginia Wildrye (native woodland edge pairing)"], bad:["Bermudagrass (overtakes in sunny areas)","Zoysiagrass (similar aggression)"] },
+  "Annual Ryegrass":    { good:["Bermudagrass (primary overseed host)","Zoysiagrass (overseed host)","St. Augustinegrass (overseed host)"], bad:["Perennial Ryegrass in heavy mix (spring transition competition)","Fescues (ryegrass dies May and leaves gaps)"] },
+  "Perennial Ryegrass": { good:["Bermudagrass (overseed host)","Zoysiagrass (overseed host)","Tall Fescue (transition blend)"], bad:["Annual Ryegrass at high rates (spring competition)","Pure fescue lawns (ryegrass dies and opens to weeds)"] },
+  "Muhly Grass":        { good:["Little Bluestem (stunning fall color duo)","Switchgrass","Black-eyed Susan","Lantana"], bad:["Tall plants that shade it (needs full sun)","Invasive liriope (out-competes in border)"] },
+  "Feather Reed Grass": { good:["Switchgrass","Salvia","Echinacea","Russian Sage","Blue Fescue (foreground contrast)"], bad:["Maiden Grass (too similar in form — redundant)","Overly wet sites (crown rot)"] },
+  "Maiden Grass":       { good:["Muhly Grass (fall color duo)","Rudbeckia","Asters","Tall Sedum","Little Bluestem (meadow feel)"], bad:["Small gardens (too large, self-seeds aggressively)","Feather Reed Grass (similar vertical habit — redundant)"] },
+  "Fountain Grass":     { good:["Blue Oat Grass (form and color contrast)","Salvia","Echinacea","Ornamental Sedge (edging)"], bad:["Invasive forms near natural areas","Maiden Grass (compete for same border space)"] },
+  "Blue Fescue":        { good:["Feather Reed Grass (height contrast)","Sedge (Carex)","Low sedums","Ornamental thyme (groundcover neighbor)"], bad:["Tall spreading grasses (will shade out)","Wet clay soils (crown rot)","Fountain Grass (outcompetes)"] },
+  "Japanese Forest Grass":{ good:["Hostas","Ferns","Astilbe","Hellebores — classic shade garden partners","Blue Fescue (contrast)"], bad:["Full sun positions (scorches)","Bermudagrass encroachment from nearby sunny borders"] },
+  "Blue Oat Grass":     { good:["Fountain Grass","Ornamental Sedge","Lavender","Salvia","Rosemary (Mediterranean dry garden feel)"], bad:["Wet or poorly drained sites (crown rot)","Overwatering","Maiden Grass nearby (visual clash)"] },
+  "Sedge (Carex)":      { good:["Hostas, Ferns, Astilbe (shade)","Switchgrass, Muhly Grass (sun/part shade)","River Oats (woodland edge)"], bad:["Extremely dry exposed sites without irrigation","Heavy Bermudagrass encroachment"] },
+  "Little Bluestem":    { good:["Muhly Grass (fall color duo 🔥)","Indiangrass","Black-eyed Susan","Coneflower","Switchgrass — native meadow mix"], bad:["Shade (needs full sun)","Tall Fescue lawn edges (fescue encroaches into clumps)"] },
+  "Big Bluestem":       { good:["Switchgrass","Indiangrass","Native wildflowers (Coneflower, Rattlesnake Master)","Eastern Gamagrass (wet spots)"], bad:["Small gardens (gets very large — 4–6ft)","Maiden Grass (non-native competing in same space)"] },
+  "Switchgrass":        { good:["Little Bluestem","Muhly Grass","Indiangrass","Native Coneflowers and Asters — backbone of a NC native meadow"], bad:["Heavily shaded sites","Bermudagrass lawn edges (will invade from turf)"] },
+  "Indiangrass":        { good:["Little Bluestem","Switchgrass","Big Bluestem","Native wildflowers — perfect meadow trio"], bad:["Shade","Lawn-type mowing regimes (needs room to grow)","Invasive Liriope nearby"] },
+  "River Oats":         { good:["Virginia Wildrye (cool-season native duo — year-round woodland interest)","Ferns","Wild Ginger","Trillium"], bad:["Areas where self-seeding is unwanted (very prolific)","Full sun without consistent moisture"] },
+  "Virginia Wildrye":   { good:["River Oats (season-complementary native pair — cool + warm-season cover)","Sedge (Carex)","Wild Columbine","Solomon's Seal (woodland edge)"], bad:["Dry exposed full-sun sites","Heavily trafficked areas (low wear tolerance)"] },
+  "Eastern Gamagrass":  { good:["Switchgrass","Big Bluestem (native wet meadow trio)","Native Sedges and Rushes in bioretention areas"], bad:["Dry well-drained upland sites","Small ornamental beds (too large and aggressive)"] },
+};
+
+const MONTHS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MCLS    = ["q-winter","q-winter","q-spring","q-spring","q-spring","q-summer","q-summer","q-summer","q-fall","q-fall","q-fall","q-winter"];
+const typeMap  = { seed:"🌱 Seeding Window", grow:"🌿 Active / Growing", both:"🌱 Seed & Growing" };
+
+function catLabel(c) {
+  return { warm:"☀️ Warm-Season", cool:"❄️ Cool-Season", orn:"🌸 Ornamental", native:"🌿 Native" }[c] || c;
+}
+
+function getBarType(g, m) {
+  const s = g.seed.includes(m);
+  const gr = g.grow.includes(m);
+  if (s && gr) return "both";
+  if (s)       return "seed";
+  if (gr)      return "grow";
+  return null;
+}
+
+// XSS-safe escaping
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let currentCat = "all", currentSearch = "";
+
+const EL = {
+  chartBody: document.getElementById("chart-body"),
+  count:     document.getElementById("count"),
+  empty:     document.getElementById("empty"),
+};
+
+function buildChart() {
+  const frag = document.createDocumentFragment();
+
+  G.forEach(g => {
+    const comp    = COMPANIONS[g.n] || { good: [], bad: [] };
+    const hasComp = comp.good.length > 0 || comp.bad.length > 0;
+
+    const row = document.createElement("div");
+    row.className = "plant-row";
+    row.dataset.c    = g.c;
+    row.dataset.name = g.n.toLowerCase();
+
+    // Name cell
+    const nameCell = document.createElement("div");
+    nameCell.className = "name-cell" + (hasComp ? " has-companion" : "");
+    nameCell.dataset.plant = g.n;
+    nameCell.dataset.good  = comp.good.join(" · ") || "None noted";
+    nameCell.dataset.bad   = comp.bad.join(" · ")  || "None noted";
+
+    const pname = document.createElement("div");
+    pname.className   = "pname";
+    pname.textContent = g.n;
+
+    const pcat = document.createElement("div");
+    pcat.className   = "pcat " + g.c;
+    pcat.textContent = catLabel(g.c);
+
+    nameCell.append(pname, pcat);
+    row.appendChild(nameCell);
+
+    // Month cells
+    for (let m = 0; m < 12; m++) {
+      const cell = document.createElement("div");
+      cell.className = "bar-cell " + MCLS[m];
+
+      const type = getBarType(g, m);
+      if (type) {
+        const bar = document.createElement("div");
+        bar.className    = "bar " + type;
+        bar.dataset.name  = g.n;
+        bar.dataset.month = MONTHS[m];
+        bar.dataset.type  = type;
+        bar.dataset.tip   = g.tip;
+        cell.appendChild(bar);
+      }
+      row.appendChild(cell);
+    }
+
+    frag.appendChild(row);
+  });
+
+  EL.chartBody.appendChild(frag);
+}
+
+function applyFilters() {
+  const rows = document.querySelectorAll(".plant-row");
+  let visible = 0;
+  rows.forEach(r => {
+    const matchCat    = currentCat === "all" || r.dataset.c === currentCat;
+    const matchSearch = currentSearch === "" || r.dataset.name.includes(currentSearch);
+    const show = matchCat && matchSearch;
+    r.classList.toggle("hidden", !show);
+    if (show) visible++;
+  });
+  EL.count.textContent = visible + " grass" + (visible === 1 ? "" : "es");
+  EL.empty.style.display = visible === 0 ? "block" : "none";
+}
+
+// Filter pills
+document.querySelector(".controls").addEventListener("click", e => {
+  const btn = e.target.closest(".pill[data-c]");
+  if (!btn) return;
+  currentCat = btn.dataset.c;
+  document.querySelectorAll(".pill[data-c]").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  applyFilters();
+});
+
+// Search
+document.getElementById("search").addEventListener("input", e => {
+  currentSearch = e.target.value.toLowerCase().trim();
+  applyFilters();
+});
+
+// ── Tooltip system ────────────────────────────────────────────────────────────
+const tip = document.getElementById("tooltip");
+
+function moveTip(x, y) {
+  tip.style.left = Math.min(x + 14, window.innerWidth - 290) + "px";
+  tip.style.top  = (y - 10) + "px";
+}
+function hideTip() {
+  tip.style.display = "none";
+  tip._key = null;
+}
+function renderTip(key, html) {
+  if (tip._key !== key) {
+    tip.innerHTML = html;
+    tip._key = key;
+    tip.style.display = "block";
+  }
+}
+
+function tipFor(target) {
+  const bar  = target.closest(".bar");
+  const cell = target.closest(".name-cell.has-companion");
+  if (bar) {
+    const d = bar.dataset;
+    return {
+      key:  "bar:" + d.name + d.month,
+      html: `<strong>${esc(d.name)}</strong><div class="tip-month">${esc(d.month)} — ${typeMap[d.type] || ""}</div><div class="tip-body">${esc(d.tip)}</div>`
+    };
+  }
+  if (cell) {
+    const d = cell.dataset;
+    return {
+      key:  "comp:" + d.plant,
+      html: `<strong>🌾 ${esc(d.plant)}</strong>
+       <div class="tip-month">Off-Season Pairings</div>
+       <div class="tip-body">
+         <span style="color:var(--grow)">✅ Pair with</span><br>${esc(d.good)}
+         <br><br><span style="color:#e87a4a">❌ Avoid pairing</span><br>${esc(d.bad)}
+       </div>`
+    };
+  }
+  return null;
+}
+
+function positionTipAnchored(el) {
+  tip.style.display = "block";
+  const r  = el.getBoundingClientRect();
+  const tr = tip.getBoundingClientRect();
+  let left = r.left + r.width / 2 - tr.width / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tr.width - 8));
+  let top = r.bottom + 8;
+  if (top + tr.height > window.innerHeight - 8) top = r.top - tr.height - 8;
+  tip.style.left = left + "px";
+  tip.style.top  = Math.max(8, top) + "px";
+}
+
+const isTouch = typeof window.matchMedia === "function"
+  ? window.matchMedia("(hover: none), (pointer: coarse)").matches
+  : ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
+if (isTouch) {
+  document.addEventListener("click", e => {
+    const t = e.target.closest(".bar, .name-cell.has-companion");
+    if (t && EL.chartBody.contains(t)) {
+      const info = tipFor(t);
+      if (info) {
+        if (tip.style.display === "block" && tip._key === info.key) {
+          hideTip();
+        } else {
+          renderTip(info.key, info.html);
+          positionTipAnchored(t);
+        }
+        e.stopPropagation();
+        return;
+      }
+    }
+    hideTip();
+  });
+} else {
+  EL.chartBody.addEventListener("mousemove", e => {
+    const info = tipFor(e.target);
+    if (info) {
+      renderTip(info.key, info.html);
+      moveTip(e.clientX, e.clientY);
+    } else {
+      hideTip();
+    }
+  });
+  EL.chartBody.addEventListener("mouseleave", hideTip);
+}
+
+buildChart();
+applyFilters();
+</script>
+</body>
+</html>
