@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raleigh, NC — Planting Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141414;
+    --bg2: #1c1c1c;
+    --bg3: #242424;
+    --border: #2a2a2a;
+    --border2: #383838;
+    --text: #e8e8e8;
+    --text2: #a0a0a0;
+    --text3: #555555;
+    --accent: #6ee7b7;
+    --plant: #4ade80;
+    --harvest: #fb923c;
+    --indoor: #059669;
+    --both: #a3e635;
+    --spring: #4ade80;
+    --spring-bg: #0d1f14;
+    --summer: #fbbf24;
+    --summer-bg: #1e1a0a;
+    --fall: #f97316;
+    --fall-bg: #1e1208;
+    --winter: #60a5fa;
+    --winter-bg: #0d1625;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 32px 24px 64px;
+  }
+
+  /* HEADER */
+  header { margin-bottom: 28px; }
+  h1 {
+    font-family: 'Bitter', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  h1 em { font-style: italic; font-weight: 400; color: var(--text2); }
+  .meta { font-size: 11px; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .ctrl-group { display: flex; gap: 6px; align-items: center; }
+  .ctrl-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .1em; margin-right: 2px; }
+  .pill {
+    padding: 4px 13px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    transition: all .15s;
+    font-family: 'DM Mono', monospace;
+  }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+  .pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .pill.veg.active  { background: #1d4ed8; color: #bfdbfe; border-color: #1d4ed8; }
+  .pill.herb.active { background: #7c3aed; color: #ede9fe; border-color: #7c3aed; }
+  .pill.native.active { background: #d97706; color: #fef3c7; border-color: #d97706; }
+  .pill.fruit.active  { background: #be185d; color: #fce7f3; border-color: #be185d; }
+  .sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+  .search {
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    outline: none;
+    width: 160px;
+  }
+  .search::placeholder { color: var(--text3); }
+  .search:focus { border-color: var(--accent); }
+  .count { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 10px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    align-items: center;
+  }
+  .leg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text2); }
+  .leg-bar { width: 28px; height: 12px; border-radius: 3px; }
+  .leg-bar.plant   { background: var(--plant); }
+  .leg-bar.harvest { background: var(--harvest); }
+  .leg-bar.both    { background: linear-gradient(90deg, var(--plant) 50%, var(--harvest) 50%); }
+  .leg-bar.indoor  { background: var(--indoor); border: 1.5px dashed #5cb85c; opacity: .7; }
+
+  /* CHART */
+  .chart-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  .chart { min-width: 900px; }
+
+  /* Season band */
+  .season-band {
+    display: grid;
+    grid-template-columns: 200px 2fr 3fr 3fr 2fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .season-cell {
+    padding: 5px 8px;
+    font-size: 10px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-weight: 600;
+    border-right: 1px solid var(--border);
+  }
+  .season-cell:last-child { border-right: none; }
+  .season-cell.blank { background: var(--bg2); }
+  .season-cell.winter { background: var(--winter-bg); color: #60a5fa; }
+  .season-cell.spring { background: var(--spring-bg); color: #4ade80; }
+  .season-cell.summer { background: var(--summer-bg); color: #e8a830; }
+  .season-cell.fall   { background: var(--fall-bg); color: #f97316; }
+
+  /* Month header */
+  .month-header {
+    display: grid;
+    grid-template-columns: 200px repeat(12, 1fr);
+    border-bottom: 2px solid var(--border2);
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .mh-name {
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    border-right: 1px solid var(--border);
+  }
+  .mh-month {
+    padding: 8px 4px;
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    border-right: 1px solid var(--border);
+  }
+  .mh-month:last-child { border-right: none; }
+  .mh-month.win { color: #60a5fa; }
+  .mh-month.spr { color: #4ade80; }
+  .mh-month.sum { color: #e8a830; }
+  .mh-month.fal { color: #f97316; }
+
+  /* Plant rows */
+  .plant-row {
+    display: grid;
+    grid-template-columns: 200px repeat(12, 1fr);
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+  }
+  .plant-row:last-child { border-bottom: none; }
+  .plant-row:hover { background: #1d2c1580; }
+  .plant-row.hidden { display: none; }
+
+  .name-cell {
+    padding: 6px 12px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--bg);
+  }
+  .name-cell.has-companion { cursor: help; }
+  .plant-row:hover .name-cell { background: var(--bg2); }
+  .pname { font-size: 12px; font-weight: 500; color: var(--text); font-family: 'Bitter', serif; }
+  .pcat  { font-size: 9px; margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .pcat.herb   { color: #a78bfa; }
+  .pcat.veg    { color: #60a5fa; }
+  .pcat.native { color: var(--summer); }
+  .pcat.fruit  { color: #f472b6; }
+
+  .bar-cell {
+    border-right: 1px solid var(--border);
+    padding: 6px 2px;
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    position: relative;
+  }
+  .bar-cell:last-child { border-right: none; }
+  .bar-cell.win { background: #0d162510; }
+  .bar-cell.spr { background: #0d1f1410; }
+  .bar-cell.sum { background: #1e1a0a10; }
+  .bar-cell.fal { background: #1e120810; }
+
+  .bar {
+    height: 16px;
+    border-radius: 3px;
+    width: 100%;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .bar:hover { opacity: .75; transform: scaleY(1.15); }
+  .bar.plant   { background: var(--plant); }
+  .bar.harvest { background: var(--harvest); }
+  .bar.both    { background: linear-gradient(90deg, var(--plant) 50%, var(--harvest) 50%); }
+  .bar.indoor  { background: var(--indoor); border: 1.5px dashed #5cb85c; opacity: .65; }
+
+
+
+  /* TODAY PANEL */
+  .today-panel {
+    margin-bottom: 24px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px #6ee7b720, 0 4px 24px #00000040;
+  }
+  .today-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 13px 20px;
+    background: #0d2e22;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+  }
+  .today-header:hover { background: #112e22; }
+  .today-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    opacity: .7;
+  }
+  .today-date {
+    font-family: 'Bitter', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+  }
+  .today-sub {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    display: none;
+  }
+  .today-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .today-col {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border);
+  }
+  .today-col:last-child { border-right: none; }
+  .today-col-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .today-col-title.plant-title   { color: var(--plant); }
+  .today-col-title.harvest-title { color: var(--harvest); }
+  .today-col-title.indoor-title  { color: #34d399; }
+  .today-pill-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .today-pill {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    cursor: default;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .today-pill:hover { opacity: .75; }
+  .today-pill.plant   { background: #14532d; color: #86efac; border: 1px solid #166534; }
+  .today-pill.harvest { background: #431407; color: #fdba74; border: 1px solid #7c2d12; }
+  .today-pill.indoor  { background: #0d2e1e; color: #6ee7b7; border: 1px solid #065f46; }
+  .today-pill.none    { color: var(--text3); font-size: 11px; font-family: 'DM Mono', monospace; }
+  .today-month-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    border-radius: 5px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: all .15s;
+    font-family: 'DM Mono', monospace;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+
+  .collapse-icon {
+    font-size: 10px; color: var(--accent); transition: transform .2s ease;
+    display: inline-block; opacity: .6;
+  }
+  .today-panel.collapsed .collapse-icon { transform: rotate(-90deg); }
+  .today-body {
+    transition: max-height .25s ease, opacity .2s ease;
+    max-height: 600px;
+    opacity: 1;
+    overflow: hidden;
+  }
+  .today-panel.collapsed .today-body {
+    max-height: 0;
+    opacity: 0;
+  }
+
+
+
+  /* In-season row highlight */
+  .plant-row.in-season .name-cell {
+    border-left: 3px solid var(--accent);
+  }
+  .plant-row.in-season .pname {
+    color: var(--accent);
+  }
+
+  /* Companion planting tooltip */
+    font-family: 'Bitter', serif;
+    font-size: 13px;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* Sortable headers */
+  .sortable { cursor: pointer; user-select: none; }
+  .sortable:hover { color: var(--accent); }
+  .sort-ind { font-size: 9px; opacity: 0.5; margin-left: 2px; }
+  .sortable.sort-asc .sort-ind::after  { content: "▲"; opacity: 1; color: var(--accent); }
+  .sortable.sort-desc .sort-ind::after { content: "▼"; opacity: 1; color: var(--accent); }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--text);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    max-width: 240px;
+    line-height: 1.7;
+    box-shadow: 0 8px 24px #00000060;
+  }
+  #tooltip strong { color: var(--accent); font-family: 'Bitter', serif; font-size: 13px; display: block; margin-bottom: 4px; }
+  #tooltip .tip-month { color: var(--text2); margin-bottom: 6px; font-size: 10px; }
+  #tooltip .tip-body { color: var(--text2); font-size: 10px; }
+
+  /* Empty */
+  .empty-msg { display: none; text-align: center; padding: 32px; color: var(--text3); font-size: 12px; }
+
+  /* ── Responsive: tablet & mobile ─────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    body { padding: 20px 12px 48px; }
+    h1 { font-size: 1.5rem; }
+    .meta { font-size: 10px; }
+
+    /* Narrower name column, tighter month cells */
+    .chart { min-width: 680px; }
+    .month-header,
+    .plant-row { grid-template-columns: 130px repeat(12, 1fr); }
+    .season-band { grid-template-columns: 130px 2fr 3fr 3fr 2fr; }
+
+    .name-cell { padding: 5px 8px; }
+    .pname { font-size: 11px; }
+    .pcat { font-size: 8px; }
+    .mh-name, .mh-month { padding: 6px 3px; font-size: 9px; }
+    .bar-cell { padding: 5px 1px; min-height: 30px; }
+    .bar { height: 14px; }
+
+    /* Today panel: stack the 3 columns vertically */
+    .today-cols { grid-template-columns: 1fr; }
+    .today-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .today-col:last-child { border-bottom: none; }
+    .today-header { flex-wrap: wrap; gap: 8px; padding: 11px 14px; }
+    .today-label { display: none; }
+
+    /* Controls wrap more gracefully */
+    .controls { gap: 6px; }
+    .ctrl-label { display: none; }
+    .search { width: 100%; order: 99; }
+
+    /* Tooltip: wider, easier to read on small screens */
+    #tooltip { max-width: 78vw; font-size: 12px; padding: 12px 16px; }
+    #tooltip strong { font-size: 14px; }
+    #tooltip .tip-month, #tooltip .tip-body { font-size: 11px; }
+
+    /* Hint that bars/names are tappable */
+    .scroll-hint { display: block; }
+  }
+
+  @media (max-width: 480px) {
+    .chart { min-width: 560px; }
+    .month-header,
+    .plant-row { grid-template-columns: 104px repeat(12, 1fr); }
+    .season-band { grid-template-columns: 104px 2fr 3fr 3fr 2fr; }
+    h1 { font-size: 1.3rem; }
+  }
+
+  /* Horizontal-scroll hint (mobile only) */
+  .scroll-hint {
+    display: none;
+    font-size: 10px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 8px;
+    text-align: center;
+    font-style: italic;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌿 Raleigh, NC <em>Planting Calendar</em></h1>
+  <div class="meta">USDA Zone 8a &nbsp;·&nbsp; Last frost ~Apr 10 &nbsp;·&nbsp; First frost ~Nov 12 &nbsp;·&nbsp; 80 plants, herbs & fruit</div>
+</header>
+
+
+<div class="today-panel collapsed" id="today-panel">
+  <div class="today-header" id="today-header-bar">
+    <span class="collapse-icon" id="collapse-icon">▼</span>
+    <span class="today-label">What to grow</span>
+    <div class="today-month-nav">
+      <button class="nav-btn" id="nav-prev">&#8592;</button>
+      <div class="today-date" id="today-date"></div>
+      <button class="nav-btn" id="nav-next">&#8594;</button>
+    </div>
+    <span class="today-label">in Raleigh, NC</span>
+    <span class="collapse-icon" style="transform: scaleX(-1);">▼</span>
+    <span id="today-sub" style="display:none"></span>
+  </div>
+  <div class="today-body" id="today-body">
+  <div class="today-cols">
+    <div class="today-col">
+      <div class="today-col-title plant-title">🌱 Plant / Sow</div>
+      <div class="today-pill-wrap" id="tp-plant"></div>
+    </div>
+    <div class="today-col">
+      <div class="today-col-title indoor-title">🪴 Start Indoors</div>
+      <div class="today-pill-wrap" id="tp-indoor"></div>
+    </div>
+    <div class="today-col">
+      <div class="today-col-title harvest-title">🍅 Harvest</div>
+      <div class="today-pill-wrap" id="tp-harvest"></div>
+    </div>
+  </div>
+  </div><!-- /today-body -->
+</div>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Category</span>
+    <button class="pill active" data-c="all">All</button>
+    <button class="pill veg" data-c="veg">🥦 Vegetables</button>
+    <button class="pill herb" data-c="herb">🌿 Herbs</button>
+    <button class="pill native" data-c="native">🌻 Native</button>
+    <button class="pill fruit"  data-c="fruit">🍓 Fruit</button>
+  </div>
+  <div class="sep"></div>
+  <input class="search" id="search" type="text" placeholder="Search plant...">
+  <span class="count" id="count">50 plants</span>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-bar indoor"></div>Start Indoors</div>
+  <div class="leg"><div class="leg-bar plant"></div>Direct Sow / Transplant</div>
+  <div class="leg"><div class="leg-bar harvest"></div>Harvest Window</div>
+  <div class="leg"><div class="leg-bar both"></div>Plant &amp; Harvest</div>
+</div>
+
+<div class="scroll-hint">← swipe for all months · tap a bar or plant name for details</div>
+<div class="chart-wrap">
+  <div class="chart">
+    <div class="season-band">
+      <div class="season-cell blank"></div>
+      <div class="season-cell winter">❄️ Winter</div>
+      <div class="season-cell spring">🌸 Spring</div>
+      <div class="season-cell summer">☀️ Summer</div>
+      <div class="season-cell fall">🍂 Fall</div>
+    </div>
+    <div class="month-header">
+      <div class="mh-name sortable" data-sort="name">Plant / Herb <span class="sort-ind" id="si-name"></span></div>
+      <div class="mh-month win sortable" data-sort="m0">Jan <span class="sort-ind" id="si-m0"></span></div>
+      <div class="mh-month win sortable" data-sort="m1">Feb <span class="sort-ind" id="si-m1"></span></div>
+      <div class="mh-month spr sortable" data-sort="m2">Mar <span class="sort-ind" id="si-m2"></span></div>
+      <div class="mh-month spr sortable" data-sort="m3">Apr <span class="sort-ind" id="si-m3"></span></div>
+      <div class="mh-month spr sortable" data-sort="m4">May <span class="sort-ind" id="si-m4"></span></div>
+      <div class="mh-month sum sortable" data-sort="m5">Jun <span class="sort-ind" id="si-m5"></span></div>
+      <div class="mh-month sum sortable" data-sort="m6">Jul <span class="sort-ind" id="si-m6"></span></div>
+      <div class="mh-month sum sortable" data-sort="m7">Aug <span class="sort-ind" id="si-m7"></span></div>
+      <div class="mh-month fal sortable" data-sort="m8">Sep <span class="sort-ind" id="si-m8"></span></div>
+      <div class="mh-month fal sortable" data-sort="m9">Oct <span class="sort-ind" id="si-m9"></span></div>
+      <div class="mh-month fal sortable" data-sort="m10">Nov <span class="sort-ind" id="si-m10"></span></div>
+      <div class="mh-month win sortable" data-sort="m11">Dec <span class="sort-ind" id="si-m11"></span></div>
+    </div>
+    <div id="chart-body"></div>
+    <div class="empty-msg" id="empty">No plants match your filter.</div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MCLS   = ["win","win","spr","spr","spr","sum","sum","sum","fal","fal","fal","win"];
+
+const P = [
+  // VEGETABLES
+  {n:"Tomatoes",       c:"veg",    indoor:[1,2],      plant:[3,4],           harvest:[6,7,8,9],            tip:"Start indoors Feb–Mar. Transplant after Apr 15. Pick Jul–Oct."},
+  {n:"Peppers",        c:"veg",    indoor:[1,2],      plant:[3,4],           harvest:[6,7,8,9],            tip:"Start indoors Feb–Mar. Needs warm soil; black plastic mulch helps."},
+  {n:"Eggplant",       c:"veg",    indoor:[1,2],      plant:[3,4],           harvest:[6,7,8,9],            tip:"Start indoors Feb–Mar. Long warm season; thrives in full NC sun."},
+  {n:"Cucumbers",      c:"veg",    plant:[3,4,5],                            harvest:[5,6,7,8],            tip:"Direct sow Apr–May. Trellis to save space and improve airflow."},
+  {n:"Summer Squash",  c:"veg",    plant:[3,4,5],                            harvest:[5,6,7,8],            tip:"Very productive. Watch for squash vine borers after mid-June."},
+  {n:"Zucchini",       c:"veg",    plant:[3,4,5],                            harvest:[5,6,7,8],            tip:"Harvest frequently when small for continuous production."},
+  {n:"Green Beans",    c:"veg",    plant:[3,4,5,7,8],                        harvest:[5,6,7,8,9,10],       tip:"Succession sow Apr–Aug. Bush beans easiest; pole beans need support."},
+  {n:"Okra",           c:"veg",    plant:[4,5],                              harvest:[6,7,8,9,10],         tip:"Direct sow after last frost. Harvest every 2–3 days."},
+  {n:"Sweet Potatoes", c:"veg",    plant:[4,5],                              harvest:[8,9,10],             tip:"Plant slips after soil warms. Harvest before first frost."},
+  {n:"Field Peas",     c:"veg",    plant:[4,5],                              harvest:[6,7,8,9],            tip:"Heat & drought tolerant Southern crop."},
+  {n:"Blackeyed Peas", c:"veg",    plant:[4,5],                              harvest:[6,7,8,9],            tip:"Direct sow after soil warms. Very low maintenance."},
+  {n:"Potatoes (Irish)",c:"veg",   plant:[1,2,7,8],                          harvest:[4,5,6,10,11],        tip:"Plant seed potatoes Feb–Mar and again Aug–Sep. Hill up soil as they grow. Harvest when foliage dies back."},
+  {n:"Corn (Sweet)",   c:"veg",    plant:[3,4,5],                            harvest:[6,7,8],              tip:"Direct sow after last frost in blocks (not rows) for good pollination. Succession sow every 2 weeks."},
+  {n:"Winter Squash",  c:"veg",    plant:[4,5],                              harvest:[9,10,11],            tip:"Plant after frost; needs long season. Harvest after skin hardens. Stores well through winter."},
+  {n:"Pumpkins",       c:"veg",    plant:[4,5],                              harvest:[9,10],               tip:"Direct sow May–Jun for Halloween harvest. Needs lots of space; mulch heavily to retain moisture."},
+  {n:"Butternut Squash",c:"veg",   plant:[4,5],                              harvest:[9,10,11],            tip:"One of the best storage crops for NC. Harvest after first light frost for sweetest flavor."},
+  {n:"Lima Beans",     c:"veg",    plant:[4,5],                              harvest:[6,7,8,9],            tip:"Heat-loving Southern classic. Direct sow after soil warms. Bush varieties easiest for home gardens."},
+  {n:"Edamame",        c:"veg",    plant:[4,5,6],                            harvest:[7,8,9],              tip:"Very easy in NC heat. Direct sow after frost; harvest when pods are plump but still green."},
+  {n:"Peanuts",        c:"veg",    plant:[4,5],                              harvest:[8,9,10],             tip:"NC is peanut country! Direct sow after last frost. Dig entire plant when leaves yellow in fall."},
+  {n:"Scallions",      c:"veg",    plant:[0,1,2,3,7,8,9],                   harvest:[2,3,4,5,6,9,10,11],  tip:"Nearly year-round in Zone 8a. Sow direct; harvest in as little as 60 days. Great gap filler."},
+  {n:"Shallots",       c:"veg",    plant:[9,10],                             harvest:[4,5,6],              tip:"Plant sets Oct–Nov like garlic. Harvest June when tops fall over. Excellent storage crop."},
+  {n:"Tomatillos",     c:"veg",    plant:[3,4],                              harvest:[6,7,8,9],            tip:"Same culture as tomatoes. Very productive in NC heat; plant two for pollination. Self-seeds readily."},
+  {n:"Bok Choy",       c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Cool season crop; bolts in heat. Spring and fall plantings both very productive in NC."},
+  {n:"Kohlrabi",       c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Underrated cool-season crop. Direct sow spring or fall; harvest when bulb reaches golf ball size."},
+  {n:"Watermelon",     c:"veg",    plant:[4,5],                              harvest:[7,8,9],              tip:"Needs full summer. Harvest when stem tendril nearest fruit dries."},
+  {n:"Peas (Snap/Snow)",c:"veg",   plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Plant 6–8 weeks before last frost. Heat kills quickly; use trellis."},
+  {n:"Lettuce",        c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Succession sow every 2 weeks. Bolt-resistant varieties best for NC."},
+  {n:"Arugula",        c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Very fast grower. Bolts quickly; succession sow every 3 weeks."},
+  {n:"Spinach",        c:"veg",    plant:[1,2,8,9],                          harvest:[3,4,5,10,11],        tip:"Sow late Feb and again in Sept. Bolts in summer."},
+  {n:"Swiss Chard",    c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,6,7,8,9,10,11],tip:"Spans nearly all seasons. One of NC's most versatile crops."},
+  {n:"Mustard Greens", c:"veg",    plant:[1,2,3,8,9],                        harvest:[3,4,5,9,10,11],      tip:"Fast-growing Southern green. Direct sow spring or late summer."},
+  {n:"Kale",           c:"veg",    plant:[1,2,7,8],                          harvest:[3,4,5,9,10,11,0],    tip:"Plant late summer for fall/winter harvest. Frost sweetens flavor."},
+  {n:"Collard Greens", c:"veg",    plant:[1,2,7,8],                          harvest:[3,4,5,9,10,11,0],    tip:"Southern staple. Mild NC winters allow near year-round production."},
+  {n:"Radishes",       c:"veg",    plant:[2,3,8,9],                          harvest:[3,4,5,9,10],         tip:"Ready in 25–30 days. Great gap-filler between slower crops."},
+  {n:"Beets",          c:"veg",    plant:[2,3,8,9],                          harvest:[4,5,6,10,11],        tip:"Direct sow only; don't transplant. Greens are also edible."},
+  {n:"Carrots",        c:"veg",    plant:[2,3,8,9],                          harvest:[4,5,6,10,11],        tip:"Need loose, deep soil. Baby varieties do well in clay-amended beds."},
+  {n:"Broccoli",       c:"veg",    indoor:[0,1],      plant:[1,2,6,7],       harvest:[3,4,5,9,10],         tip:"Transplant late Feb or late July. Bolts in heat; timing is key."},
+  {n:"Cabbage",        c:"veg",    indoor:[0,1],      plant:[1,2,6,7],       harvest:[3,4,5,10,11,0],      tip:"Start indoors 6–8 weeks ahead. Frost-hardy once established."},
+  {n:"Cauliflower",    c:"veg",    indoor:[0,1],      plant:[1,2,6,7],       harvest:[3,4,5,9,10],         tip:"Needs consistent moisture; trickier than broccoli in NC heat."},
+  {n:"Brussels Sprouts",c:"veg",   indoor:[4,5],      plant:[6,7],           harvest:[10,11,0],            tip:"Transplant July for Nov–Jan harvest. Frost dramatically improves flavor."},
+  {n:"Turnips",        c:"veg",    plant:[1,2,7,8],                          harvest:[3,4,5,10,11,0],      tip:"Tops and roots both edible. Frost-hardy; plant late summer for fall."},
+  {n:"Onions",         c:"veg",    plant:[0,1,2],                            harvest:[4,5,6],              tip:"Plant transplants Jan–Feb. Short-day varieties like Vidalia work best."},
+  {n:"Leeks",          c:"veg",    indoor:[0,1,2],    plant:[2,3],           harvest:[9,10,11,0],          tip:"Start early indoors; harvest fall through early spring."},
+  // HERBS
+  {n:"Basil",          c:"herb",   indoor:[2,3],      plant:[4,5],           harvest:[5,6,7,8,9],          tip:"Start indoors Mar–Apr. Pinch flowers to extend harvest all summer."},
+  {n:"Rosemary",       c:"herb",   plant:[2,3,4,5,6,7,8,9,10,11],           harvest:[0,1,2,3,4,5,6,7,8,9,10,11], tip:"Year-round in Zone 8a. Harvest anytime once established."},
+  {n:"Thyme",          c:"herb",   plant:[2,3,4],                            harvest:[0,1,2,3,4,5,6,7,8,9,10,11], tip:"Hardy through NC winters. Harvest nearly year-round."},
+  {n:"Mint",           c:"herb",   plant:[2,3,4],                            harvest:[3,4,5,6,7,8,9,10],   tip:"Container-grow to control spread. Partial shade in peak heat."},
+  {n:"Chives",         c:"herb",   plant:[2,3],                              harvest:[3,4,5,8,9,10],       tip:"First herb up in spring. Cut back after flowering."},
+  {n:"Cilantro",       c:"herb",   plant:[2,3,8,9],                          harvest:[3,4,5,9,10,11],      tip:"Bolts fast in heat. Sow early spring and again in September."},
+  {n:"Dill",           c:"herb",   plant:[2,3,8,9],                          harvest:[3,4,5,9,10],         tip:"Cool-season; bolts in summer. Great companion for tomatoes."},
+  {n:"Parsley",        c:"herb",   plant:[2,3,8,9],                          harvest:[3,4,5,6,9,10,11,0],  tip:"Overwintering biennial. Often survives NC winters in place."},
+  {n:"Fennel",         c:"herb",   plant:[2,3,8,9],                          harvest:[4,5,6,9,10,11],      tip:"Cool-season; keep isolated — inhibits nearby herb growth."},
+  {n:"Oregano",        c:"herb",   plant:[2,3,4],                            harvest:[4,5,6,7,8,9,10],     tip:"Perennial in Zone 8a. Full sun, dry conditions preferred."},
+  {n:"Sage",           c:"herb",   plant:[2,3,4],                            harvest:[4,5,6,7,8,9,10],     tip:"Drought-tolerant once established. Prune after flowering."},
+  {n:"Tarragon",       c:"herb",   plant:[2,3,4],                            harvest:[4,5,6,7,8,9],        tip:"French tarragon best. Dies back in winter; returns reliably in spring."},
+  {n:"Lavender",       c:"herb",   plant:[2,3,4],                            harvest:[5,6,7,8],            tip:"Excellent drainage critical. Raised beds prevent root rot."},
+  {n:"Lemon Balm",     c:"herb",   plant:[2,3,4],                            harvest:[4,5,6,7,8,9,10],     tip:"Thrives in NC humidity. Keep in pots; naturally repels mosquitoes."},
+  {n:"Catnip",         c:"herb",   plant:[2,3,4],                            harvest:[4,5,6,7,8,9,10],     tip:"Perennial; spreads easily. Cut back after flowering for second flush."},
+  {n:"Chamomile",      c:"herb",   plant:[2,3,8,9],                          harvest:[4,5,6,9,10],         tip:"Direct sow in fall for spring blooms. German chamomile is easiest."},
+  {n:"Borage",         c:"herb",   plant:[2,3,8,9],                          harvest:[4,5,6,9,10],         tip:"Self-seeds prolifically. Edible flowers; great companion for tomatoes."},
+  {n:"Stevia",         c:"herb",   plant:[4,5],                              harvest:[6,7,8,9],            tip:"Harvest before flower buds open for best sweetness."},
+  {n:"Lemongrass",     c:"herb",   plant:[4,5],                              harvest:[6,7,8,9],            tip:"Treat as annual. Plant after frost; repels mosquitoes."},
+  {n:"Garlic",         c:"herb",   plant:[9,10],                             harvest:[4,5,6],              tip:"Plant cloves Oct–Nov; harvest June. Hardneck varieties best for NC."},
+  // NATIVE
+  {n:"Echinacea",      c:"native", plant:[2,3,4],                            harvest:[6,7,8,9,10],         tip:"Native to NC. Drought-tolerant, medicinal, beloved by pollinators."},
+  // FRUIT
+  {n:"Strawberries",   c:"fruit",  plant:[1,2,8,9],                          harvest:[3,4,5,6],            tip:"Plant June-bearing varieties Sep–Oct or Feb–Mar. Mulch heavily in winter. Harvest Apr–Jun."},
+  {n:"Blueberries",    c:"fruit",  plant:[0,1,2],                            harvest:[5,6,7],              tip:"Plant Jan–Mar bare root or container. Need acidic soil (pH 4.5–5.5). Two varieties for cross-pollination."},
+  {n:"Blackberries",   c:"fruit",  plant:[0,1,2],                            harvest:[5,6,7],              tip:"Plant Jan–Mar. Thornless varieties easiest. Trellis canes; fruit on second-year canes."},
+  {n:"Raspberries",    c:"fruit",  plant:[0,1,2],                            harvest:[4,5,6,8,9,10],       tip:"Plant Jan–Mar. Everbearing varieties give two flushes: May–Jun and Sep–Oct. Need good drainage."},
+  {n:"Cantaloupe",     c:"fruit",  plant:[3,4,5],                            harvest:[6,7,8,9],            tip:"Direct sow after last frost. Needs full sun and consistent moisture. Harvest when stem slips easily."},
+  {n:"Peaches",        c:"fruit",  plant:[0,1,2],                            harvest:[5,6,7],              tip:"NC is peach country! Plant bare root Jan–Mar. Need 800–1000 chill hours. Prune annually for best yield."},
+  {n:"Nectarines",     c:"fruit",  plant:[0,1,2],                            harvest:[5,6,7],              tip:"Same care as peaches. Slightly more disease-prone but excellent flavor. Plant bare root Jan–Mar."},
+  {n:"Figs",           c:"fruit",  plant:[2,3,4],                            harvest:[6,7,8,9],            tip:"Brown Turkey is the go-to NC variety. Nearly foolproof in Zone 8a. Little to no spraying needed."},
+  {n:"Apples",         c:"fruit",  plant:[0,1,2],                            harvest:[7,8,9,10],           tip:"Low-chill varieties (Fuji, Gala, Honeycrisp) work best. Need two varieties for cross-pollination."},
+  {n:"Asian Pears",    c:"fruit",  plant:[0,1,2],                            harvest:[7,8,9],              tip:"More reliable than European pears in NC heat. Fire blight resistant varieties recommended."},
+  {n:"Persimmons",     c:"fruit",  plant:[0,1,2],                            harvest:[9,10,11],            tip:"American (native) and Asian varieties both thrive. Very low maintenance once established. Harvest after frost."},
+  {n:"Pawpaw",         c:"fruit",  plant:[2,3,4],                            harvest:[8,9],                tip:"Native to NC. Shade-tolerant and nearly pest-free. Plant two seedlings for pollination. Tropical-like flavor."},
+  {n:"Muscadine Grapes",c:"fruit", plant:[0,1,2],                            harvest:[7,8,9],              tip:"Native to NC — almost foolproof. Disease resistant, heat tolerant. One of the best fruit choices for Raleigh."},
+  {n:"Elderberries",   c:"fruit",  plant:[0,1,2],                            harvest:[7,8,9],              tip:"Native and extremely vigorous. Great for jams and syrups. Plant two for better yield."},
+  {n:"Hardy Kiwi",     c:"fruit",  plant:[2,3],                              harvest:[9,10],               tip:"Issai variety handles Zone 8a well. Very productive vine; needs trellis and male/female plants."},
+  {n:"Gooseberries",   c:"fruit",  plant:[0,1,2],                            harvest:[5,6,7],              tip:"Tolerates NC winters well. Produces reliably with minimal care. Tart flavor great for preserves."},
+];
+
+let currentCat = "all";
+let currentSearch = "";
+
+// Cache frequently-accessed elements
+const EL = {
+  chartBody: document.getElementById("chart-body"),
+  count:     document.getElementById("count"),
+  empty:     document.getElementById("empty"),
+  tpPlant:   document.getElementById("tp-plant"),
+  tpIndoor:  document.getElementById("tp-indoor"),
+  tpHarvest: document.getElementById("tp-harvest"),
+  todayDate: document.getElementById("today-date"),
+  todaySub:  document.getElementById("today-sub"),
+};
+
+
+// Companion planting map: good neighbours and enemies
+const COMPANIONS = {
+  "Tomatoes":        { good: ["Basil","Parsley","Borage","Carrots","Marigolds","Chives"], bad: ["Fennel","Kohlrabi","Brussels Sprouts","Cabbage"] },
+  "Peppers":         { good: ["Basil","Carrots","Tomatoes","Oregano"], bad: ["Fennel","Kohlrabi"] },
+  "Eggplant":        { good: ["Basil","Mint","Tarragon"], bad: ["Fennel"] },
+  "Cucumbers":       { good: ["Dill","Borage","Radishes","Lettuce","Peas (Snap/Snow)"], bad: ["Sage","Basil","Potatoes (Irish)"] },
+  "Summer Squash":   { good: ["Borage","Mint","Radishes","Corn (Sweet)"], bad: ["Potatoes (Irish)"] },
+  "Zucchini":        { good: ["Borage","Mint","Radishes","Corn (Sweet)"], bad: ["Potatoes (Irish)"] },
+  "Green Beans":     { good: ["Carrots","Corn (Sweet)","Radishes","Strawberries","Mint"], bad: ["Fennel","Onions","Shallots","Garlic","Chives"] },
+  "Okra":            { good: ["Basil","Peppers","Eggplant"], bad: [] },
+  "Sweet Potatoes":  { good: ["Thyme","Oregano"], bad: ["Squash (Summer)"] },
+  "Field Peas":      { good: ["Corn (Sweet)","Carrots","Radishes"], bad: ["Onions","Garlic","Chives"] },
+  "Blackeyed Peas":  { good: ["Corn (Sweet)","Carrots"], bad: ["Onions","Garlic"] },
+  "Potatoes (Irish)":{ good: ["Horseradish","Basil","Thyme","Chamomile"], bad: ["Cucumbers","Tomatoes","Squash (Summer)","Rosemary"] },
+  "Corn (Sweet)":    { good: ["Green Beans","Peas (Snap/Snow)","Squash (Summer)","Zucchini","Borage"], bad: ["Tomatoes"] },
+  "Winter Squash":   { good: ["Corn (Sweet)","Green Beans","Borage","Mint"], bad: ["Potatoes (Irish)"] },
+  "Pumpkins":        { good: ["Corn (Sweet)","Green Beans","Borage"], bad: ["Potatoes (Irish)"] },
+  "Butternut Squash":{ good: ["Corn (Sweet)","Borage","Mint"], bad: ["Potatoes (Irish)"] },
+  "Lima Beans":      { good: ["Carrots","Corn (Sweet)","Radishes"], bad: ["Onions","Garlic","Fennel"] },
+  "Edamame":         { good: ["Carrots","Corn (Sweet)","Cucumbers"], bad: ["Onions","Garlic","Fennel"] },
+  "Peanuts":         { good: ["Corn (Sweet)","Squash (Summer)"], bad: ["Onions","Fennel"] },
+  "Scallions":       { good: ["Tomatoes","Carrots","Lettuce","Beets"], bad: ["Green Beans","Peas (Snap/Snow)"] },
+  "Shallots":        { good: ["Tomatoes","Carrots","Lettuce","Beets"], bad: ["Green Beans","Peas (Snap/Snow)"] },
+  "Tomatillos":      { good: ["Basil","Carrots","Borage"], bad: ["Fennel","Kohlrabi"] },
+  "Bok Choy":        { good: ["Mint","Chamomile","Dill"], bad: ["Strawberries","Tomatoes"] },
+  "Kohlrabi":        { good: ["Onions","Beets","Chamomile"], bad: ["Tomatoes","Peppers","Fennel"] },
+  "Watermelon":      { good: ["Borage","Radishes","Corn (Sweet)"], bad: ["Potatoes (Irish)"] },
+  "Peas (Snap/Snow)":{ good: ["Carrots","Radishes","Mint","Cucumbers","Corn (Sweet)"], bad: ["Onions","Garlic","Chives","Shallots"] },
+  "Lettuce":         { good: ["Carrots","Radishes","Chives","Mint","Strawberries"], bad: ["Fennel","Celery"] },
+  "Arugula":         { good: ["Mint","Chamomile","Lettuce"], bad: ["Strawberries"] },
+  "Spinach":         { good: ["Strawberries","Peas (Snap/Snow)","Chamomile","Radishes"], bad: ["Fennel"] },
+  "Swiss Chard":     { good: ["Onions","Lettuce","Radishes","Mint"], bad: ["Fennel"] },
+  "Mustard Greens":  { good: ["Mint","Chamomile"], bad: ["Fennel","Strawberries"] },
+  "Kale":            { good: ["Dill","Chamomile","Mint","Onions"], bad: ["Strawberries","Tomatoes","Fennel"] },
+  "Collard Greens":  { good: ["Mint","Chamomile","Onions"], bad: ["Strawberries","Tomatoes"] },
+  "Radishes":        { good: ["Cucumbers","Lettuce","Peas (Snap/Snow)","Spinach","Carrots"], bad: ["Hyssop"] },
+  "Beets":           { good: ["Lettuce","Onions","Garlic","Mint","Kohlrabi"], bad: ["Pole Beans","Mustard Greens"] },
+  "Carrots":         { good: ["Tomatoes","Lettuce","Chives","Rosemary","Sage","Onions"], bad: ["Dill","Fennel"] },
+  "Broccoli":        { good: ["Mint","Chamomile","Dill","Rosemary","Onions"], bad: ["Tomatoes","Peppers","Strawberries","Fennel"] },
+  "Cabbage":         { good: ["Mint","Chamomile","Dill","Onions","Rosemary"], bad: ["Tomatoes","Strawberries","Fennel"] },
+  "Cauliflower":     { good: ["Mint","Chamomile","Dill","Onions"], bad: ["Tomatoes","Strawberries","Fennel"] },
+  "Brussels Sprouts":{ good: ["Mint","Chamomile","Onions"], bad: ["Tomatoes","Fennel","Strawberries"] },
+  "Turnips":         { good: ["Onions","Chamomile","Peas (Snap/Snow)"], bad: ["Fennel","Mustard Greens"] },
+  "Onions":          { good: ["Tomatoes","Carrots","Beets","Lettuce","Chamomile"], bad: ["Green Beans","Peas (Snap/Snow)","Sage"] },
+  "Leeks":           { good: ["Carrots","Celery","Onions"], bad: ["Peas (Snap/Snow)","Green Beans"] },
+  "Basil":           { good: ["Tomatoes","Peppers","Oregano","Borage"], bad: ["Sage","Thyme","Cucumbers"] },
+  "Rosemary":        { good: ["Sage","Carrots","Beans","Cabbage","Broccoli"], bad: ["Potatoes (Irish)","Cucumbers","Pumpkins"] },
+  "Thyme":           { good: ["Tomatoes","Eggplant","Strawberries","Rosemary","Cabbage"], bad: ["Cucumbers"] },
+  "Mint":            { good: ["Tomatoes","Cabbage","Peas (Snap/Snow)","Broccoli"], bad: ["Chamomile"] },
+  "Chives":          { good: ["Tomatoes","Carrots","Parsley"], bad: ["Green Beans","Peas (Snap/Snow)"] },
+  "Cilantro":        { good: ["Spinach","Tomatoes","Basil","Mint"], bad: ["Fennel","Dill"] },
+  "Dill":            { good: ["Cucumbers","Lettuce","Onions","Corn (Sweet)"], bad: ["Carrots","Tomatoes","Fennel","Cilantro"] },
+  "Parsley":         { good: ["Tomatoes","Chives","Carrots","Asparagus"], bad: ["Onions","Garlic","Mint"] },
+  "Fennel":          { good: ["Dill"], bad: ["Tomatoes","Peppers","Eggplant","Cucumbers","Kohlrabi","Green Beans","Basil"] },
+  "Oregano":         { good: ["Tomatoes","Peppers","Basil","Squash (Summer)"], bad: [] },
+  "Sage":            { good: ["Rosemary","Carrots","Cabbage","Broccoli"], bad: ["Basil","Cucumbers","Onions"] },
+  "Tarragon":        { good: ["Tomatoes","Peppers","Eggplant"], bad: [] },
+  "Lavender":        { good: ["Sage","Oregano","Thyme","Brassicas"], bad: ["Mint"] },
+  "Lemon Balm":      { good: ["Tomatoes","Squash (Summer)","Basil"], bad: ["Mint"] },
+  "Catnip":          { good: ["Beets","Pumpkins"], bad: ["Mint"] },
+  "Chamomile":       { good: ["Cabbage","Onions","Broccoli","Kale","Potatoes (Irish)"], bad: ["Mint"] },
+  "Borage":          { good: ["Tomatoes","Squash (Summer)","Strawberries","Cucumbers","Corn (Sweet)"], bad: [] },
+  "Stevia":          { good: ["Tomatoes","Peppers"], bad: [] },
+  "Lemongrass":      { good: ["Basil","Mint"], bad: [] },
+  "Garlic":          { good: ["Tomatoes","Roses","Carrots","Beets","Lettuce"], bad: ["Green Beans","Peas (Snap/Snow)","Sage"] },
+  "Echinacea":       { good: ["Lavender","Sage","Chamomile"], bad: [] },
+  "Strawberries":    { good: ["Thyme","Borage","Lettuce","Spinach","Green Beans"], bad: ["Cabbage","Broccoli","Kale","Fennel","Mustard Greens"] },
+  "Blueberries":     { good: ["Strawberries","Thyme","Basil"], bad: ["Fennel"] },
+  "Blackberries":    { good: ["Tansy","Chamomile"], bad: ["Fennel"] },
+  "Raspberries":     { good: ["Chamomile","Tansy","Garlic"], bad: ["Fennel","Blackberries"] },
+  "Cantaloupe":      { good: ["Borage","Corn (Sweet)","Radishes"], bad: ["Potatoes (Irish)"] },
+  "Peaches":         { good: ["Basil","Garlic","Tansy"], bad: ["Fennel","Raspberries"] },
+  "Nectarines":      { good: ["Basil","Garlic","Tansy"], bad: ["Fennel"] },
+  "Figs":            { good: ["Rue","Chamomile"], bad: ["Fennel"] },
+  "Apples":          { good: ["Chamomile","Garlic","Chives","Borage"], bad: ["Fennel","Potatoes (Irish)"] },
+  "Asian Pears":     { good: ["Chamomile","Garlic","Chives"], bad: ["Fennel"] },
+  "Persimmons":      { good: ["Chamomile","Borage"], bad: ["Fennel"] },
+  "Pawpaw":          { good: ["Elderberries","Borage"], bad: ["Fennel"] },
+  "Muscadine Grapes":{ good: ["Borage","Chamomile","Mint"], bad: ["Fennel","Cabbage"] },
+  "Elderberries":    { good: ["Pawpaw","Chamomile","Borage"], bad: ["Fennel"] },
+  "Hardy Kiwi":      { good: ["Chamomile","Borage"], bad: ["Fennel"] },
+  "Gooseberries":    { good: ["Tomatoes","Chamomile"], bad: ["Fennel"] },
+};
+
+function getBarType(p, m) {
+  const isIndoor  = p.indoor  && p.indoor.includes(m);
+  const isPlant   = p.plant   && p.plant.includes(m);
+  const isHarvest = p.harvest && p.harvest.includes(m);
+  if (isIndoor)           return "indoor";
+  if (isPlant && isHarvest) return "both";
+  if (isPlant)            return "plant";
+  if (isHarvest)          return "harvest";
+  return null;
+}
+
+function catLabel(c) {
+  return c === "herb" ? "🌿 Herb" : c === "veg" ? "🥦 Vegetable" : c === "fruit" ? "🍓 Fruit" : "🌻 Native Herb";
+}
+
+function buildChart() {
+  const frag = document.createDocumentFragment();
+
+  P.forEach(p => {
+    const comp = COMPANIONS[p.n] || { good: [], bad: [] };
+    const hasComp = comp.good.length > 0 || comp.bad.length > 0;
+
+    const row = document.createElement("div");
+    row.className = "plant-row";
+    row.dataset.c = p.c;
+    row.dataset.name = p.n.toLowerCase();
+
+    // Name cell — text via textContent (XSS-safe), data via dataset (auto-escaped)
+    const nameCell = document.createElement("div");
+    nameCell.className = "name-cell" + (hasComp ? " has-companion" : "");
+    nameCell.dataset.plant = p.n;
+    nameCell.dataset.good = comp.good.join(", ") || "None noted";
+    nameCell.dataset.bad  = comp.bad.join(", ")  || "None noted";
+
+    const pname = document.createElement("div");
+    pname.className = "pname";
+    pname.textContent = p.n;
+
+    const pcat = document.createElement("div");
+    pcat.className = "pcat " + p.c;
+    pcat.textContent = catLabel(p.c);
+
+    nameCell.append(pname, pcat);
+    row.appendChild(nameCell);
+
+    // Month cells
+    for (let m = 0; m < 12; m++) {
+      const cell = document.createElement("div");
+      cell.className = "bar-cell " + MCLS[m];
+
+      const type = getBarType(p, m);
+      if (type) {
+        const bar = document.createElement("div");
+        bar.className = "bar " + type;
+        bar.dataset.plant = p.n;
+        bar.dataset.month = MONTHS[m];
+        bar.dataset.type  = type;
+        bar.dataset.tip   = p.tip;
+        cell.appendChild(bar);
+      }
+      row.appendChild(cell);
+    }
+
+    frag.appendChild(row);
+  });
+
+  EL.chartBody.appendChild(frag);
+}
+
+function applyFilters() {
+  const rows = document.querySelectorAll(".plant-row");
+  let visible = 0;
+  rows.forEach(r => {
+    const matchCat    = currentCat === "all" || r.dataset.c === currentCat;
+    const matchSearch = currentSearch === "" || r.dataset.name.includes(currentSearch);
+    const show = matchCat && matchSearch;
+    r.classList.toggle("hidden", !show);
+    if (show) visible++;
+  });
+  EL.count.textContent = visible + " plant" + (visible === 1 ? "" : "s");
+  EL.empty.style.display = visible === 0 ? "block" : "none";
+}
+
+// Category filter
+document.querySelector(".controls").addEventListener("click", e => {
+  const btn = e.target.closest(".pill");
+  if (!btn) return;
+  currentCat = btn.dataset.c;
+  document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  applyFilters();
+});
+
+// Search
+document.getElementById("search").addEventListener("input", e => {
+  currentSearch = e.target.value.toLowerCase().trim();
+  applyFilters();
+});
+
+// ── Unified tooltip system ───────────────────────────────────────────────────
+const tip = document.getElementById("tooltip");
+const typeMap = { plant:"🌱 Plant / Sow", harvest:"🍅 Harvest", both:"🌱🍅 Plant & Harvest", indoor:"🪴 Start Indoors" };
+
+// Escape dynamic strings before they enter innerHTML
+const esc = s => String(s).replace(/[&<>"]/g, c => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]
+));
+
+function moveTip(x, y) {
+  tip.style.left = Math.min(x + 14, window.innerWidth - 270) + "px";
+  tip.style.top  = (y - 10) + "px";
+}
+function hideTip() {
+  tip.style.display = "none";
+  tip._key = null;
+}
+
+// Only rebuild innerHTML when the hovered target changes, not on every move
+function renderTip(key, html) {
+  if (tip._key !== key) {
+    tip.innerHTML = html;
+    tip._key = key;
+    tip.style.display = "block";
+  }
+}
+
+// Build tooltip HTML for a given bar or companion cell
+function tipFor(target) {
+  const bar  = target.closest(".bar");
+  const cell = target.closest(".name-cell.has-companion");
+  if (bar) {
+    const d = bar.dataset;
+    return {
+      key: "bar:" + d.plant + d.month,
+      html: `<strong>${esc(d.plant)}</strong><div class="tip-month">${esc(d.month)} — ${typeMap[d.type] || ""}</div><div class="tip-body">${esc(d.tip)}</div>`
+    };
+  }
+  if (cell) {
+    const d = cell.dataset;
+    return {
+      key: "comp:" + d.plant,
+      html: `<strong>🌿 ${esc(d.plant)}</strong>
+       <div class="tip-month">Companion Planting</div>
+       <div class="tip-body">
+         <span style="color:var(--plant)">✅ Grows well with</span><br>${esc(d.good)}
+         <br><br><span style="color:var(--harvest)">❌ Keep away from</span><br>${esc(d.bad)}
+       </div>`
+    };
+  }
+  return null;
+}
+
+const isTouch = typeof window.matchMedia === "function"
+  ? window.matchMedia("(hover: none), (pointer: coarse)").matches
+  : ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
+if (isTouch) {
+  // ── Touch: tap a bar/name to pin the tooltip; tap it again or elsewhere to dismiss ──
+  document.addEventListener("click", e => {
+    const t = e.target.closest(".bar, .name-cell.has-companion");
+    if (t && EL.chartBody.contains(t)) {
+      const info = tipFor(t);
+      if (info) {
+        // Toggle off if tapping the same target that's already shown
+        if (tip.style.display === "block" && tip._key === info.key) {
+          hideTip();
+        } else {
+          renderTip(info.key, info.html);
+          positionTipAnchored(t);
+        }
+        e.stopPropagation();
+        return;
+      }
+    }
+    hideTip();
+  });
+} else {
+  // ── Desktop: hover to show, follows cursor ──
+  EL.chartBody.addEventListener("mousemove", e => {
+    const info = tipFor(e.target);
+    if (info) {
+      renderTip(info.key, info.html);
+      moveTip(e.clientX, e.clientY);
+    } else {
+      hideTip();
+    }
+  });
+  EL.chartBody.addEventListener("mouseleave", hideTip);
+}
+
+// Anchor the tooltip near a tapped element (centered above/below it, clamped to viewport)
+function positionTipAnchored(el) {
+  const r = el.getBoundingClientRect();
+  const tr = tip.getBoundingClientRect();
+  let left = r.left + r.width / 2 - tr.width / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tr.width - 8));
+  let top = r.bottom + 8;
+  if (top + tr.height > window.innerHeight - 8) {
+    top = r.top - tr.height - 8; // flip above if no room below
+  }
+  tip.style.left = left + "px";
+  tip.style.top  = Math.max(8, top) + "px";
+}
+
+
+// TODAY PANEL
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const NOW = new Date();
+let panelMonth = NOW.getMonth();
+
+function updateTodayPanel(m) {
+  EL.todayDate.textContent = MONTH_NAMES[m];
+  const isCurrentMonth = m === NOW.getMonth();
+  EL.todaySub.textContent = isCurrentMonth
+    ? 'What to do right now in Raleigh, NC'
+    : 'What to do in ' + MONTH_NAMES[m] + ' in Raleigh, NC';
+
+  const toPlant = [], toIndoor = [], toHarvest = [];
+
+  P.forEach(p => {
+    const isIndoor  = p.indoor  && p.indoor.includes(m);
+    const isPlant   = p.plant   && p.plant.includes(m);
+    const isHarvest = p.harvest && p.harvest.includes(m);
+    if (isIndoor)  toIndoor.push(p.n);
+    if (isPlant)   toPlant.push(p.n);
+    if (isHarvest) toHarvest.push(p.n);
+  });
+
+  function renderPills(el, items, cls) {
+    el.replaceChildren();
+    if (items.length === 0) {
+      const span = document.createElement('span');
+      span.className = 'today-pill none';
+      span.textContent = 'Nothing this month';
+      el.appendChild(span);
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    items.forEach(n => {
+      const span = document.createElement('span');
+      span.className = 'today-pill ' + cls;
+      span.textContent = n;
+      frag.appendChild(span);
+    });
+    el.appendChild(frag);
+  }
+
+  renderPills(EL.tpPlant,   toPlant,   'plant');
+  renderPills(EL.tpIndoor,  toIndoor,  'indoor');
+  renderPills(EL.tpHarvest, toHarvest, 'harvest');
+
+  // Highlight the active month column in the chart header
+  document.querySelectorAll('.mh-month').forEach((el, i) => {
+    const isActive = i === m;
+    el.style.background = isActive ? 'var(--bg3)' : '';
+    el.style.boxShadow = isActive ? 'inset 0 -2px 0 var(--accent)' : '';
+  });
+
+  // Highlight rows that have any activity in the active month
+  document.querySelectorAll('.plant-row').forEach(row => {
+    const cells = row.querySelectorAll('.bar-cell');
+    const active = cells[m] && cells[m].querySelector('.bar') !== null;
+    row.classList.toggle('in-season', active);
+  });
+}
+
+document.getElementById('nav-prev').addEventListener('click', () => {
+  panelMonth = (panelMonth + 11) % 12;
+  updateTodayPanel(panelMonth);
+});
+document.getElementById('nav-next').addEventListener('click', () => {
+  panelMonth = (panelMonth + 1) % 12;
+  updateTodayPanel(panelMonth);
+});
+
+// ── Initialize ───────────────────────────────────────────────────────────────
+buildChart();
+applyFilters();
+updateTodayPanel(panelMonth);
+
+// ── Sorting ──────────────────────────────────────────────────────────────────
+let sortKey = null;
+let sortDir = 1; // 1 = asc, -1 = desc
+
+function rowHasBarInMonth(row, m) {
+  const cell = row.querySelectorAll('.bar-cell')[m];
+  return !!(cell && cell.querySelector('.bar'));
+}
+
+function applySort() {
+  const rows = Array.from(EL.chartBody.querySelectorAll('.plant-row'));
+  const mIdx = sortKey === 'name' ? -1 : parseInt(sortKey.slice(1), 10);
+
+  rows.sort((a, b) => {
+    if (mIdx === -1) {
+      return sortDir * a.dataset.name.localeCompare(b.dataset.name);
+    }
+    const aHas = rowHasBarInMonth(a, mIdx) ? 0 : 1;
+    const bHas = rowHasBarInMonth(b, mIdx) ? 0 : 1;
+    if (aHas !== bHas) return sortDir * (aHas - bHas);
+    return a.dataset.name.localeCompare(b.dataset.name);
+  });
+
+  // Batch re-insertion in one reflow
+  const frag = document.createDocumentFragment();
+  rows.forEach(r => frag.appendChild(r));
+  EL.chartBody.appendChild(frag);
+}
+
+function clearSortIndicators() {
+  document.querySelectorAll('.sortable').forEach(el => {
+    el.classList.remove('sort-asc', 'sort-desc');
+  });
+}
+
+document.querySelector('.month-header').addEventListener('click', e => {
+  const col = e.target.closest('.sortable');
+  if (!col) return;
+  const key = col.dataset.sort;
+
+  if (sortKey === key) {
+    sortDir *= -1;
+  } else {
+    sortKey = key;
+    sortDir = 1;
+  }
+
+  clearSortIndicators();
+  col.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+  applySort();
+});
+
+// Collapsible today panel
+document.getElementById('today-header-bar').addEventListener('click', e => {
+  if (e.target.closest('.nav-btn')) return;
+  document.getElementById('today-panel').classList.toggle('collapsed');
+});
+
+
+
+</script>
+</body>
+</html>

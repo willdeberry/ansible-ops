@@ -14,6 +14,8 @@
       tags: [docker]
     - role: tailscale
       tags: [tailscale]
+    - role: growing-guide
+      tags: [growing-guide]
 
 - name: Remote Servers
   hosts: remote
