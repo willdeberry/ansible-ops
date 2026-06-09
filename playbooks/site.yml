@@ -16,6 +16,8 @@
       tags: [tailscale]
     - role: growing-guide
       tags: [growing-guide]
+    - role: family-sudoservers
+      tags: [family-sudoservers]
 
 - name: Remote Servers
   hosts: remote
