@@ -1,4 +1,22 @@
 ---
+- name: Ensure /etc/family-sudoservers directory exists
+  ansible.builtin.file:
+    path: /etc/family-sudoservers
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [family-sudoservers]
+
+- name: Deploy /etc/family-sudoservers/env
+  ansible.builtin.template:
+    src: env.j2
+    dest: /etc/family-sudoservers/env
+    owner: root
+    group: root
+    mode: "0600"
+  tags: [family-sudoservers]
+
 - name: Ensure repos staging directory exists
   ansible.builtin.file:
     path: /home/will/repos
