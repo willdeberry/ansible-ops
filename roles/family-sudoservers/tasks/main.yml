@@ -49,7 +49,7 @@
     PUBLIC_GOOGLE_CLIENT_ID: 737811340148-ht784t8ukngtoaav6hrte0mlen8tk5ln.apps.googleusercontent.com
   become_user: will
   register: family_build
-  when: family_repo.changed or not family_node_modules.stat.exists
+  when: family_repo.changed or not family_node_modules.stat.exists or family_force_build | default(false) | bool
   tags: [family-sudoservers]
 
 - name: Ensure family-sudoservers client directory exists
