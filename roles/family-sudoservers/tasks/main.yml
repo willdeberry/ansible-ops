@@ -45,6 +45,8 @@
   ansible.builtin.command:
     cmd: npm run build
     chdir: /home/will/repos/family.sudoservers.com/web
+  environment:
+    PUBLIC_GOOGLE_CLIENT_ID: 737811340148-ht784t8ukngtoaav6hrte0mlen8tk5ln.apps.googleusercontent.com
   become_user: will
   register: family_build
   when: family_repo.changed or not family_node_modules.stat.exists
