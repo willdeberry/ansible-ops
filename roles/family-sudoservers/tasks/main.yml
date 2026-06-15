@@ -8,15 +8,6 @@
     mode: "0755"
   tags: [family-sudoservers]
 
-- name: Deploy /etc/family-sudoservers/env
-  ansible.builtin.template:
-    src: env.j2
-    dest: /etc/family-sudoservers/env
-    owner: root
-    group: root
-    mode: "0600"
-  tags: [family-sudoservers]
-
 - name: Ensure repos staging directory exists
   ansible.builtin.file:
     path: /home/will/repos
@@ -68,13 +59,53 @@
     mode: "0755"
   tags: [family-sudoservers]
 
-- name: Sync web/dist into nginx www client dir
+- name: Ensure family-sudoservers server directory exists
+  ansible.builtin.file:
+    path: /home/will/docker/homelab/nginx/www/family.sudoservers.com/server
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  tags: [family-sudoservers]
+
+- name: Sync web/dist/client into nginx www client dir
   ansible.builtin.command:
     cmd: >-
       rsync -a --delete
-      /home/will/repos/family.sudoservers.com/web/dist/
+      /home/will/repos/family.sudoservers.com/web/dist/client/
       /home/will/docker/homelab/nginx/www/family.sudoservers.com/client/
   become_user: will
+  when: family_build.changed
+  tags: [family-sudoservers]
+
+- name: Sync web/dist/server into nginx www server dir
+  ansible.builtin.command:
+    cmd: >-
+      rsync -a --delete
+      /home/will/repos/family.sudoservers.com/web/dist/server/
+      /home/will/docker/homelab/nginx/www/family.sudoservers.com/server/
+  become_user: will
+  when: family_build.changed
+  tags: [family-sudoservers]
+
+- name: Sync web/node_modules into nginx www dir
+  ansible.builtin.command:
+    cmd: >-
+      rsync -a --delete
+      /home/will/repos/family.sudoservers.com/web/node_modules/
+      /home/will/docker/homelab/nginx/www/family.sudoservers.com/node_modules/
+  become_user: will
+  when: family_build.changed
+  tags: [family-sudoservers]
+
+- name: Sync web/package.json into nginx www dir
+  ansible.builtin.copy:
+    src: /home/will/repos/family.sudoservers.com/web/package.json
+    dest: /home/will/docker/homelab/nginx/www/family.sudoservers.com/package.json
+    remote_src: true
+    owner: will
+    group: will
+    mode: "0644"
   when: family_build.changed
   tags: [family-sudoservers]
 
