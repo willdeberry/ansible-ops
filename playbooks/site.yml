@@ -18,6 +18,8 @@
       tags: [growing-guide]
     - role: family-sudoservers
       tags: [family-sudoservers]
+    - role: financial-dashboard
+      tags: [financial-dashboard]
 
 - name: Remote Servers
   hosts: remote
