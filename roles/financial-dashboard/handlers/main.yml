@@ -1,5 +1,5 @@
 ---
-- name: Restart nginx container
+- name: Restart nginx container (financial-dashboard)
   ansible.builtin.command:
     cmd: docker compose restart nginx
     chdir: /home/will/docker/homelab

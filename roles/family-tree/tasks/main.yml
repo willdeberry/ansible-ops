@@ -35,7 +35,7 @@
     owner: will
     group: will
     mode: "0644"
-  notify: Restart nginx container
+  notify: Restart nginx container (family-tree)
   tags: [family-tree]
 
 - name: Rebuild and restart family-tree containers

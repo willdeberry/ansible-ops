@@ -34,7 +34,7 @@
     owner: will
     group: will
     mode: "0644"
-  notify: Restart nginx container
+  notify: Restart nginx container (financial-dashboard)
   tags: [financial-dashboard]
 
 - name: Rebuild and restart financial-dashboard containers
