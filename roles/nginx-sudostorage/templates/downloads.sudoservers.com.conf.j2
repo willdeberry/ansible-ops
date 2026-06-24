@@ -1,0 +1,20 @@
+server {
+    listen 443 ssl;
+
+    server_name downloads.sudoservers.com;
+    access_log /config/log/nginx/downloads_access.log;
+    error_log /config/log/nginx/downloads_error.log;
+
+    include /config/nginx/ssl.conf;
+
+    location / {
+        client_max_body_size 2M;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://192.168.1.13:9091;
+        proxy_read_timeout 90;
+        proxy_redirect http://192.168.1.13:9091 http://192.168.1.13:9091;
+    }
+}
