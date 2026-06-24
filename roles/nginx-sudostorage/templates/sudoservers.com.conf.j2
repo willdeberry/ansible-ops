@@ -1,0 +1,10 @@
+server {
+    listen 443 ssl;
+
+    server_name sudoservers.com;
+
+    include /config/nginx/ssl.conf;
+
+    root /config/www/sudoservers;
+    index index.html;
+}
