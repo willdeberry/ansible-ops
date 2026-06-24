@@ -107,3 +107,13 @@
     mode: "0644"
   notify: Restart nginx container (nginx-sudostorage)
   tags: [nginx-sudostorage]
+
+- name: Deploy storage.sudoservers.com nginx conf
+  ansible.builtin.template:
+    src: storage.sudoservers.com.conf.j2
+    dest: /home/will/docker/homelab/nginx/config/site-confs/storage.sudoservers.com.conf
+    owner: will
+    group: will
+    mode: "0644"
+  notify: Restart nginx container (nginx-sudostorage)
+  tags: [nginx-sudostorage]
