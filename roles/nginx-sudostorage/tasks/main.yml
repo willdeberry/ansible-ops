@@ -17,3 +17,13 @@
     mode: "0644"
   notify: Restart nginx container (nginx-sudostorage)
   tags: [nginx-sudostorage]
+
+- name: Deploy bridge.sudoservers.com nginx conf
+  ansible.builtin.template:
+    src: bridge.sudoservers.com.conf.j2
+    dest: /home/will/docker/homelab/nginx/config/site-confs/bridge.sudoservers.com.conf
+    owner: will
+    group: will
+    mode: "0644"
+  notify: Restart nginx container (nginx-sudostorage)
+  tags: [nginx-sudostorage]
