@@ -1,0 +1,19 @@
+---
+- name: Ensure nginx site-confs directory exists
+  ansible.builtin.file:
+    path: /home/will/docker/homelab/nginx/config/site-confs
+    state: directory
+    owner: will
+    group: will
+    mode: "0755"
+  tags: [nginx-sudostorage]
+
+- name: Deploy git.sudoservers.com nginx conf
+  ansible.builtin.template:
+    src: git.sudoservers.com.conf.j2
+    dest: /home/will/docker/homelab/nginx/config/site-confs/git.sudoservers.com.conf
+    owner: will
+    group: will
+    mode: "0644"
+  notify: Restart nginx container (nginx-sudostorage)
+  tags: [nginx-sudostorage]

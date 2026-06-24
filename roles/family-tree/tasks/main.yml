@@ -20,7 +20,7 @@
 
 - name: Ensure nginx site-confs directory exists
   ansible.builtin.file:
-    path: /home/will/docker/homelab/nginx/conf/site-confs
+    path: /home/will/docker/homelab/nginx/config/site-confs
     state: directory
     owner: will
     group: will
@@ -30,7 +30,7 @@
 - name: Deploy family.sudoservers.com nginx conf
   ansible.builtin.copy:
     src: /home/will/docker/projects/family-tree/deploy/family.sudoservers.com.conf
-    dest: /home/will/docker/homelab/nginx/conf/site-confs/family.sudoservers.com.conf
+    dest: /home/will/docker/homelab/nginx/config/site-confs/family.sudoservers.com.conf
     remote_src: true
     owner: will
     group: will

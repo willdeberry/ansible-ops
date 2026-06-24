@@ -1,0 +1,6 @@
+---
+- name: Restart nginx container (nginx-sudostorage)
+  ansible.builtin.command:
+    cmd: docker compose restart nginx
+    chdir: /home/will/docker/homelab
+  become_user: will

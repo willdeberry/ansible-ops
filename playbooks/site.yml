@@ -20,6 +20,8 @@
       tags: [family-tree]
     - role: financial-dashboard
       tags: [financial-dashboard]
+    - role: nginx-sudostorage
+      tags: [nginx-sudostorage]
 
 - name: Remote Servers
   hosts: remote
